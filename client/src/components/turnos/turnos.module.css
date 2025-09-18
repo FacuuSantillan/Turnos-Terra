@@ -109,7 +109,8 @@
   font-size: 12px;
   font-weight: lighter;
   width: 60%;
-  margin-top:5px
+  margin-top:5px;
+  color:rgb(70, 70, 70);
 }
 
 /* Ocupado */
@@ -138,6 +139,7 @@
   cursor: pointer;
   border-radius: 8px;
   transition: 0.3s;
+  z-index: 99;
 }
 
 .confirmarBtn:hover {
@@ -176,7 +178,7 @@
   color: #000153;
   margin-bottom: 10px;
   text-align: center;
-  width: 100%;
+  width:100%;
 }
 
 /* ================== SWIPER FLECHAS ================== */
@@ -187,6 +189,14 @@
 }
 /* ================== MOBILE ================== */
 @media (max-width: 768px) {
+  .canchaContainer h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #000153;
+  margin-bottom: 10px;
+  text-align: center;
+  width:106%;
+}
   .desktopView {
     display: none;
   }
@@ -197,18 +207,13 @@
     top: -5vh;
   }
 
-/* Flechas más arriba */
-.swiper-button-prev,
-.swiper-button-next {
-  top: 25%; /* sube las flechas (ajustá este valor a gusto) */
-  color: #000153;
-  font-weight: bold;
-}
 
 .expliacionHorarios {
   font-size: 12px;
   font-weight: lighter;
   width: 90%;
+  position: relative;
+  top: 0vh;
 }
 
   .iconoCancha {
@@ -307,6 +312,7 @@
     border-radius: 8px;
     transition: 0.3s;
     max-width: 95%;
+    position: relative;
   }
 
   .tituloCancha {

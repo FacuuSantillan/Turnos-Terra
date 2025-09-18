@@ -1,0 +1,210 @@
+
+.containerFormulario {
+  background-color: rgb(10, 5, 53);
+  position: absolute;
+  left: -7vh;
+  top: 110vh;
+  height: 100.1%;
+  width:103.3%;
+}
+
+.fondoFormulario {
+  width: 45%;
+  height: 100%;
+  filter: brightness(50%); /* oscurece la imagen */
+}
+
+.tituloPrincipal {
+  position: absolute;
+  top: 2vh;
+  color: white;
+  left: 115vh;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.horarios {
+  position: absolute;
+  top: 65vh;
+  left: 105vh;
+  margin: 0 auto;
+  color: white;
+}
+
+.subtitulo {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.botonConfirmar {
+  margin: 20px auto;
+  padding: 10px 20px;
+  background: #5cb85c;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  position:relative;
+  top: 0vh;
+  left: 30vh;
+  width: 100%;
+  height: 7vh;
+}
+.formulario {
+  display: flex;
+  flex-direction:column;
+  gap: 40px;
+  position: relative;
+  top: -85vh;
+  width: 25%;
+  margin: 0 auto;
+  left: 52vh;
+  
+}
+
+.inputGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  color: white;
+  font-weight:lighter;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.form {
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+  border: 0;
+}
+
+.canchaBox {
+position:relative;
+top: 6vh;
+left: -18%;
+margin: 20px;
+width: 50%;
+}
+
+@media (max-width: 768px) {
+
+.containerFormulario {
+  background-color: black;
+  position: absolute;
+  top: 110vh;
+  height: 90vh;
+  left: 0vh;
+}
+
+.fondoFormulario {
+  width: 100%;
+  height: auto;
+  filter: brightness(50%); /* oscurece la imagen */
+}
+
+.tituloPrincipal {
+  position: relative;
+  text-align: center;
+  top: -65vh;
+  color: white;
+  font-size: 25px;
+  font-weight: bold;
+  left:auto;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+  top: -60vh;
+  left: auto;
+}
+
+.form {
+  width: 60%;
+  height: 40px;
+  border-radius: 10px;
+  border: 0;
+  text-align: center;
+}
+
+.horarios {
+  position: relative;
+  top: -55vh;
+  width: 80%;
+  color: white;
+  left: auto;
+}
+
+.subtitulo {
+  font-size: 22px;
+  margin-bottom: 10px;
+  position:relative;
+  width:100%;
+}
+
+.canchaBox1 {
+  position:relative;
+  left: 0vh;
+  width:100%;
+  top: -0vh;
+}
+.canchaBox2{
+  position:relative;
+  left: 0vh;
+  width:100%;
+  top: 3vh;
+}
+
+.botonConfirmar {
+  background: #5cb85c;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  position:relative;
+  left: -54%;
+  top: 5vh;
+  left: 0%;
+}
+.formulario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+  top: -60vh;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.inputGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  left: auto;
+}
+
+.label {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.form {
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+  border: 0;
+  text-align: center;
+}
+}

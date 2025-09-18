@@ -90,7 +90,7 @@ function Cancha({ titulo }) {
         ))}
       </div>
       <b className={style.expliacionHorarios}>
-        *Seleccione la cantidad de horas. Si selecciona solo 15:00, el turno será de 15:00 a 16:00 hs.
+        *Seleccione la cantidad de horas.Si selecciona solo 15:00, el turno será de 15:00 a 16:00 hs.
       </b>
 
       {horasSeleccionadas.length > 0 && (
