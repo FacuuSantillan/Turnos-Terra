@@ -1,210 +1,250 @@
 
 .containerFormulario {
-  background-color: rgb(10, 5, 53);
-  position: absolute;
-  left: -7vh;
-  top: 110vh;
-  height: 100.1%;
-  width:103.3%;
+  position: relative;
+  top: 30vh;
+  width: 102.01%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .fondoFormulario {
-  width: 45%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  filter: brightness(50%); /* oscurece la imagen */
+  object-fit: cover;
+   filter: blur(6px); 
+  transform: scale(1.05);
+  z-index: -1;
 }
+
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(0px);
+  padding: 30px 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.219);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  color: #333;
+}
+.checkOverlay {
+  position: fixed;        /* flotante sobre todo */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* oscurece fondo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;          /* siempre arriba */
+}
+
+.checkIcon {
+  width: 100px;
+  height: 100px;
+  stroke: #4caf50;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  background: white;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.checkCircle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: circleAnim 0.6s ease-in-out forwards;
+}
+
+.checkMark {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: checkAnim 0.3s ease-in-out 0.6s forwards;
+}
+
+@keyframes circleAnim {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes checkAnim {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 
 .tituloPrincipal {
-  position: absolute;
-  top: 2vh;
-  color: white;
-  left: 115vh;
-  font-size: 30px;
-  font-weight: bold;
-}
-
-.horarios {
-  position: absolute;
-  top: 65vh;
-  left: 105vh;
-  margin: 0 auto;
-  color: white;
-}
-
-.subtitulo {
   font-size: 22px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
 }
 
-.botonConfirmar {
-  margin: 20px auto;
-  padding: 10px 20px;
-  background: #5cb85c;
-  color: white;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  position:relative;
-  top: 0vh;
-  left: 30vh;
-  width: 100%;
-  height: 7vh;
-}
 .formulario {
   display: flex;
-  flex-direction:column;
-  gap: 40px;
-  position: relative;
-  top: -85vh;
-  width: 25%;
-  margin: 0 auto;
-  left: 52vh;
-  
+  flex-direction: column;
+  gap: 20px;
 }
 
 .inputGroup {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.label {
-  color: white;
-  font-weight:lighter;
-  margin-bottom: 5px;
-  font-size: 16px;
-}
-
-.form {
-  width: 100%;
-  height: 40px;
-  border-radius: 10px;
-  border: 0;
-}
-
-.canchaBox {
-position:relative;
-top: 6vh;
-left: -18%;
-margin: 20px;
-width: 50%;
-}
-
-@media (max-width: 768px) {
-
-.containerFormulario {
-  background-color: black;
-  position: absolute;
-  top: 110vh;
-  height: 90vh;
-  left: 0vh;
-}
-
-.fondoFormulario {
-  width: 100%;
-  height: auto;
-  filter: brightness(50%); /* oscurece la imagen */
-}
-
-.tituloPrincipal {
-  position: relative;
-  text-align: center;
-  top: -65vh;
-  color: white;
-  font-size: 25px;
-  font-weight: bold;
-  left:auto;
-}
-
-.formulario {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  position: relative;
-  top: -60vh;
-  left: auto;
-}
-
-.form {
-  width: 60%;
-  height: 40px;
-  border-radius: 10px;
-  border: 0;
-  text-align: center;
-}
-
-.horarios {
-  position: relative;
-  top: -55vh;
-  width: 80%;
-  color: white;
-  left: auto;
-}
-
-.subtitulo {
-  font-size: 22px;
-  margin-bottom: 10px;
-  position:relative;
-  width:100%;
-}
-
-.canchaBox1 {
-  position:relative;
-  left: 0vh;
-  width:100%;
-  top: -0vh;
-}
-.canchaBox2{
-  position:relative;
-  left: 0vh;
-  width:100%;
-  top: 3vh;
-}
-
-.botonConfirmar {
-  background: #5cb85c;
-  color: white;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  position:relative;
-  left: -54%;
-  top: 5vh;
-  left: 0%;
-}
-.formulario {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  position: relative;
-  top: -60vh;
-  width: 80%;
-  margin: 0 auto;
-}
-
-.inputGroup {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  position: relative;
-  left: auto;
 }
 
 .label {
-  color: white;
-  font-weight: bold;
+  font-size: 14px;
   margin-bottom: 5px;
-  font-size: 16px;
 }
 
-.form {
+.input {
   width: 100%;
   height: 40px;
   border-radius: 10px;
-  border: 0;
-  text-align: center;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: 0.3s;
 }
+
+.input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76,175,80,0.3);
+  outline: none;
+}
+
+.horarios {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.subtitulo {
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.botonConfirmar {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.botonConfirmar:hover {
+  background: linear-gradient(135deg, #45a049, #3e8e41);
+}
+
+@media (max-width: 768px) {
+  .containerFormulario {
+    position: relative;
+    width: 102%;
+    min-height: 90vh;
+  }
+
+  .fondoFormulario {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(6px); 
+    transform: scale(1.05);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  .tituloPrincipal {
+    text-align: center;
+    color: rgb(95, 95, 95);
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .label {
+    color: rgb(95, 95, 95);
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .form {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  .horarios {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 350px;
+    color: rgb(95, 95, 95);
+    text-align: left;
+  }
+
+  .subtitulo {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .canchaBox1,
+  .canchaBox2 {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .botonConfirmar {
+    margin-top: 25px;
+    width: 100%;
+    max-width: 350px;
+    padding: 12px;
+    background: #5cb85c;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    font-size: 16px;
+  }
+  .card{
+    position:relative;
+    top: -5vh;
+  }
 }

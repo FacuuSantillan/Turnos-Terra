@@ -92,11 +92,18 @@ function Cancha({ titulo }) {
       <b className={style.expliacionHorarios}>
         *Seleccione la cantidad de horas.Si selecciona solo 15:00, el turno será de 15:00 a 16:00 hs.
       </b>
-
-      {horasSeleccionadas.length > 0 && (
-        <button className={style.confirmarBtn}>
-          CONFIRMAR HORARIO ({horasSeleccionadas.join(", ")})
-        </button>
+{horasSeleccionadas.length > 0 && (
+  <button
+    className={style.confirmarBtn}
+    onClick={() => {
+      const formSection = document.getElementById("formulario");
+      if (formSection) {
+        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }}
+  >
+    CONFIRMAR HORARIO ({horasSeleccionadas.join(", ")})
+  </button>
       )}
     </div>
   );
