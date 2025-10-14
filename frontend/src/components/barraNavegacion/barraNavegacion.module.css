@@ -1,0 +1,107 @@
+.navbar {
+  position: relative;
+  width: 102%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.fondo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  top: 0;
+  left: 0;
+  z-index: -2;
+  filter: blur(6px); 
+  transform: scale(1.05);
+}
+
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.contenido {
+  width: 90%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+}
+
+.imagenLogo {
+    width:120px;
+    height: auto;
+    margin-left: -50%;
+    
+}
+
+.menu {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  align-items: center;
+}
+
+.menu li a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.menu li a:hover {
+  color: #007a00;
+}
+
+.botonHamburguesa {
+  display: none;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  z-index: 1100; 
+}
+
+@media (max-width: 768px) {
+  .menu {
+    position: fixed;
+    top: 0;
+    right: -100%; 
+    width: 250px;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    background: rgba(0, 0, 0, 0.95);
+    transition: right 0.3s ease;
+    z-index: 1000;
+  }
+
+  .menuActivo {
+    right: 0; 
+  }
+
+  .botonHamburguesa {
+    display: block;
+  }
+
+  .imagenLogo {
+    width:100px;
+    height: auto;
+    margin-left: 0%;
+}
+
+}
