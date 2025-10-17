@@ -1,6 +1,7 @@
 import React from "react";
-import style from "./Footer.module.css";
+import style from "./footer.module.css";
 import logo from "../../assets/ChatGPT Image Aug 27, 2025, 04_54_05 PM.png"; 
+
 
 function Footer() {
   return (
