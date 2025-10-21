@@ -38,7 +38,10 @@ const { Cancha, Turno, Usuario, Horario} = sequelize.models;
 // Relaciones
 Turno.belongsTo(Usuario, { foreignKey: "usuario_id" });
 Turno.belongsTo(Cancha, { foreignKey: "cancha_id" });
-Turno.belongsTo(Horario, { foreignKey: "horario_id" });
+
+Turno.belongsToMany(Horario, { through: 'turno_horarios', foreignKey: 'turno_id' });
+Horario.belongsToMany(Turno, { through: 'turno_horarios', foreignKey: 'horario_id' });
+
 
 module.exports = {
   ...sequelize.models,

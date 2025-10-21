@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
- const Horario = sequelize.define('Horario', {
+  const Horario = sequelize.define('Horario', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -23,5 +23,6 @@ module.exports = (sequelize) => {
     tableName: "horarios",
     timestamps: false,
   });
+
   return Horario;
 };

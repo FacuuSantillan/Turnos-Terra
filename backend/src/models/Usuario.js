@@ -18,6 +18,7 @@ module.exports = (sequelize) => {
     telefono: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
   }, {
     tableName: "usuarios",
