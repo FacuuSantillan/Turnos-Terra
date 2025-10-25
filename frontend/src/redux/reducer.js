@@ -1,17 +1,32 @@
 //---------------------importacion de los types--------------------------------//
- import {
+import {
+  GET_HORARIOS
+} from "./actions";
 
- } from "./actions";
-  
 //---------------------Estados iniciales--------------------------------//
-  const initialState = {
+const initialState = {
+  horarios: [],
+  horariosCopy: [], 
+};
 
-  };
-  
-  function reducer(state = initialState, action) {
-    switch (action.type) {
-      
-          }
+function reducer(state = initialState, action) {
+  switch (action.type) {
+      case GET_HORARIOS:
+        if (!action.payload || action.payload.length === 0) {
+          return {
+            ...state,
+            horarios: ['No hay horarios disponibles'],
+          };
+        }
+        return {
+          ...state,
+          horarios: action.payload,
+          horariosCopy: [...action.payload], 
         };
-  
+
+    default:
+      return state;
+  }
+};
+
 export default reducer;

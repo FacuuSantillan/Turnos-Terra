@@ -4,6 +4,8 @@ import Formulario from "../../components/formulario/formulario";
 import MapaUbicacion from "../../components/mapaUbicacion/mapaUbicacion";
 import Footer from "../../components/footer/footer";
 
+import DashboardPadel from "../dashboard/dashboard";
+
 function Home() {
   return (
     <div>
@@ -12,6 +14,7 @@ function Home() {
       <Formulario/>
       <MapaUbicacion/>
       <Footer/>
+  
     </div>
   );
 }

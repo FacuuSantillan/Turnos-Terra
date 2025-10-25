@@ -1,8 +1,12 @@
 import React from "react";
-import barraNavegacion from "./components/barraNavegacion/barraNavegacion";
+import axios from "axios";
 import Home from "./pages/Home/Home";
+import DashboardPadel from "./pages/dashboard/dashboard";
 
 import { Routes, Route, useLocation } from "react-router-dom";
+
+axios.defaults.baseURL = 'http://localhost:3001/'
+
 
 function App() {
   // const { pathname } = useLocation();
@@ -19,7 +23,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-       
+        <Route path="/dashboard" element={<DashboardPadel />} />
       </Routes>
     </div>
   );
