@@ -6,7 +6,8 @@ const {
   obtenerHorariosAdmin,
   modificarHorarioAdmin,
   eliminarHorarioAdmin,
-  cambiarEstadoHorarioAdmin
+  cambiarEstadoHorarioAdmin,
+  obtenerTurnosAdmin
 } = require('../controller/RoutesAdmin/routesAdmin');
 
 // Controladores de turnos, canchas y usuarios
@@ -35,6 +36,9 @@ router.delete('/eliminarUsuario/:id', deleteUsuario);
 
 // Obtener todos los horarios
 router.get('/', obtenerHorariosAdmin);
+
+// obtener turnos
+router.get('/getTurnos', obtenerTurnosAdmin)
 
 // Crear horario
 router.post('/', crearHorarioAdmin);

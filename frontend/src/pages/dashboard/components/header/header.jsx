@@ -7,14 +7,11 @@ const Header = () => {
     const now = new Date();
     const options = {
       weekday: 'long',
-      year: 'numeric',
       month: 'long',
       day: 'numeric',
     };
     return now.toLocaleDateString('es-ES', options);
   });
-
-  const phoneNumber = "(011) 1234-5678";
 
   return (
     <div className="bg-green-900 text-white p-6 shadow-lg flex justify-between items-center">
@@ -32,11 +29,10 @@ const Header = () => {
         <img 
           src={logo} 
           alt="Logo Terra Padel Club" 
-          className="h-24 w-auto" 
+          className="relative h-20 w-auto" 
         />
       </div>
       <div className="flex flex-col flex-1 items-end text-right">
-        <p className="text-lg font-semibold">{phoneNumber}</p>
         <p className="text-md capitalize text-green-100 mt-1">
           {currentDate}
         </p>

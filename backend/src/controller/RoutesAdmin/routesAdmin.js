@@ -1,4 +1,5 @@
 const { Horario } = require('../../db');
+const { Turno } =require('../../db')
 
 // Crear un nuevo horario
 const crearHorarioAdmin = async (req, res) => {
@@ -97,10 +98,23 @@ const cambiarEstadoHorarioAdmin = async (req, res) => {
   }
 };
 
+const obtenerTurnosAdmin = async (req, res) => {
+  try {
+    const turnos = await Turno.findAll({
+      order: [['id', 'DESC']], 
+    });
+
+    res.status(200).json(turnos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   crearHorarioAdmin,
   obtenerHorariosAdmin,
   modificarHorarioAdmin,
   eliminarHorarioAdmin,
-  cambiarEstadoHorarioAdmin
+  cambiarEstadoHorarioAdmin,
+  obtenerTurnosAdmin
 };
