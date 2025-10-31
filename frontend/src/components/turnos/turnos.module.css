@@ -141,7 +141,7 @@
   transition: 0.3s;
   z-index: 99;
   position: absolute;
-  top: 88vh;
+  top: 80vh;
 }
 
 .confirmarBtn:hover {

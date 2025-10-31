@@ -10,11 +10,12 @@ const ConfigurarHorariosModal = ({ isOpen, onClose }) => {
   const [localHorarios, setLocalHorarios] = useState([]);
 
   useEffect(() => {
+        dispatch(getHorarios()); 
     if (isOpen) {
       dispatch(getHorarios()); 
     }
   }, [isOpen, dispatch]);
-console.log(horariosGlobales)
+
   useEffect(() => {
     if (Array.isArray(horariosGlobales)) {
       setLocalHorarios(horariosGlobales);
@@ -47,14 +48,13 @@ console.log(horariosGlobales)
   };
 
 const cancha1Horarios = localHorarios
-    // Asumiendo que 1-12 son Cancha 1
-    .filter(h => h.id >= 1 && h.id <= 24) 
+    .filter(h => h.cancha_id === 1) 
     .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
 
   const cancha2Horarios = localHorarios
-    // Asumiendo que 13-24 son Cancha 2
-    .filter(h => h.id >= 1 && h.id <= 24) 
+    .filter(h => h.cancha_id === 2) 
     .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
+
   if (!isOpen) return null;
 
   return (

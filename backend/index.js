@@ -5,14 +5,14 @@ const { seedDatabase } = require('./seed.js');
 require ('dotenv').config()
 const {PORT} = process.env;
 
-conn.sync({ force: false }).then(() => {
+// USA { force: true } para borrar todo y empezar de nuevo
+conn.sync({ force: true }).then(async () => {
+  console.log("🟢 Base de datos sincronizada (Forzada).");
   
- conn.sync({ force: false }).then(async () => {
-  console.log("🟢 Base de datos sincronizada.");
-  server.listen(PORT, () => {
-    console.log(`🚀 Servidor escuchando en el puerto: ${PORT}`);
-  });
+  // Ejecuta el seeder DESPUÉS de sincronizar
   await seedDatabase(); 
 
-});
+  server.listen(PORT, () => {
+  	console.log(`🚀 Servidor escuchando en el puerto: ${PORT}`);
+  });
 });

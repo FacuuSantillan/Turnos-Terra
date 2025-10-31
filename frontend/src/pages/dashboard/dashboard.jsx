@@ -6,11 +6,14 @@ import ActionBar from "./components/actionBar/actionBar"
 import NuevoTurnoModal from "./components/actionBar/nuevoTurnoModal";
 import VerDisponibilidadModal from "./components/actionBar/verDisponibilidad";
 import ConfigurarHorariosModal from "./components/actionBar/ConfigurarHorariosModal";
+import CalculadoraGastosModal from "./components/actionBar/calculadoraGastosModal";
+import FiltroTurnos from "./components/filtros/Filtros";
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDisponibilidadOpen, setIsDisponibilidadOpen] = useState(false);
   const [isConfigurarHorariosOpen, setIsConfigurarHorariosOpen] = useState(false)
+  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false)
   const [toastInfo, setToastInfo] = useState(null); 
 
   const showSuccessToast = () => {
@@ -33,12 +36,18 @@ const Dashboard = () => {
         onNuevoTurnoClick={() => setIsModalOpen(true)} 
         onVerDisponibilidadClick={() => setIsDisponibilidadOpen(true)} 
         onConfigurarClick={() => setIsConfigurarHorariosOpen(true)}
+        onCalculadoraClick={() => setIsCalculadoraOpen(true)}
+
       />
 
       <NuevoTurnoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <VerDisponibilidadModal isOpen={isDisponibilidadOpen} onClose={() => setIsDisponibilidadOpen(false)} />
       <ConfigurarHorariosModal isOpen={isConfigurarHorariosOpen} onClose={() => setIsConfigurarHorariosOpen(false)} />
+      <CalculadoraGastosModal isOpen={isCalculadoraOpen} onClose={() => setIsCalculadoraOpen(false)} />
 
+      <div className="px-6 py-4">
+        <FiltroTurnos />
+      </div>
 
     </div>
   );

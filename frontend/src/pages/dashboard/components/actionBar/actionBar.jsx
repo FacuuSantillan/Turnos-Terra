@@ -4,10 +4,10 @@ import {
   CalendarDaysIcon, 
   ClockIcon, 
   BuildingOfficeIcon, 
-  CalculatorIcon 
+  CalculatorIcon
 } from '@heroicons/react/24/outline';
 
-const ActionBar = ({ onNuevoTurnoClick, onVerDisponibilidadClick, onConfigurarClick }) => {
+const ActionBar = ({ onNuevoTurnoClick, onVerDisponibilidadClick, onConfigurarClick, onCalculadoraClick }) => {
   return (
     <div className="px-6 py-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -41,6 +41,7 @@ const ActionBar = ({ onNuevoTurnoClick, onVerDisponibilidadClick, onConfigurarCl
         </button>
 
         <button
+          onClick={onCalculadoraClick}
           className="flex items-center space-x-2 px-5 py-3 rounded-lg text-white font-semibold shadow-md
                      bg-amber-700 hover:bg-amber-800 transition-colors"
         >

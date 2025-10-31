@@ -33,16 +33,32 @@ let capsEntries = entries.map(([name, model]) => [
 sequelize.models = Object.fromEntries(capsEntries);
 
 // Extraer modelos tal como los definiste en cada archivo
-const { Cancha, Turno, Usuario, Horario} = sequelize.models;
+const { Cancha, Turno, Usuario, Horario } = sequelize.models;
 
-// Relaciones
+// --- Relaciones ---
 Turno.belongsTo(Usuario, { foreignKey: "usuario_id" });
 Turno.belongsTo(Cancha, { foreignKey: "cancha_id" });
 
-Turno.belongsToMany(Horario, { through: 'turno_horarios', foreignKey: 'turno_id', otherKey: 'horario_id',});
-Horario.belongsToMany(Turno, {through: 'turno_horarios', foreignKey: 'horario_id',botherKey: 'turno_id',});
+Cancha.hasMany(Horario, { foreignKey: "cancha_id" });
+Horario.belongsTo(Cancha, { foreignKey: "cancha_id" });
+
+Turno.belongsToMany(Horario, { 
+  through: 'turno_horarios', 
+  foreignKey: 'turno_id', 
+  otherKey: 'horario_id'
+});
+Horario.belongsToMany(Turno, { 
+  through: 'turno_horarios', 
+  foreignKey: 'horario_id', 
+  otherKey: 'turno_id' // Corregí 'botherKey'
+});
 
 module.exports = {
-  ...sequelize.models,
-  conn: sequelize,
+  ...sequelize.models,
+  conn: sequelize,
+};
+
+module.exports = {
+  ...sequelize.models,
+  conn: sequelize,
 };
