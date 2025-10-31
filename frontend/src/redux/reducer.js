@@ -1,7 +1,8 @@
 //---------------------importacion de los types--------------------------------//
 import {
   GET_HORARIOS,
-  GET_TURNOS
+  GET_TURNOS,
+  PUT_ESTADO_HORARIO
 } from "./actions";
 
 //---------------------Estados iniciales--------------------------------//
@@ -27,6 +28,7 @@ function reducer(state = initialState, action) {
           horarios: action.payload,
           horariosCopy: [...action.payload], 
         };
+
         case GET_TURNOS:
         if (!action.payload || action.payload.length === 0) {
           return {
@@ -40,9 +42,26 @@ function reducer(state = initialState, action) {
           turnosCopy: [...action.payload], 
         };
 
+      case PUT_ESTADO_HORARIO:
+        if (!action.payload || !action.payload.id) {
+          return state;
+        }
+        const horariosActualizados = state.horarios.map(horario => {
+          if (horario.id === action.payload.id) {
+            return action.payload; 
+          }
+          return horario;
+        });
+
+        return {
+          ...state,
+          horarios: horariosActualizados,
+          horariosCopy: [...horariosActualizados]
+        };
+
     default:
       return state;
   }
 };
-
+ 
 export default reducer;

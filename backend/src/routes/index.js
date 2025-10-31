@@ -44,7 +44,7 @@ router.get('/getTurnos', obtenerTurnosAdmin)
 router.post('/', crearHorarioAdmin);
 
 // Modificar horario
-router.put('/:id', modificarHorarioAdmin);
+router.put('/modificarHora/:id', modificarHorarioAdmin);
 
 // Cambiar estado (activo/inactivo)
 router.put('/:id', cambiarEstadoHorarioAdmin);

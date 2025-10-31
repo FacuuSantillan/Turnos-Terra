@@ -93,7 +93,7 @@ const getHoyFecha = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <div>
-              <div className="flex items-center space-x-2 mb-3">
+              <div className="flex items-center space-x-2 mb-3 ">
                 <span className="h-3 w-3 rounded-full bg-green-500"></span>
                 <h3 className=" relative left-2 top-0.5 text-lg font-semibold text-gray-800">
                   cancha 1 
@@ -106,14 +106,14 @@ const getHoyFecha = () => {
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center space-x-2 mb-3">
+            <div className='gap-2'>
+              <div className="flex items-center space-x-2 mb-3 ">
                 <span className=" h-3 w-3 rounded-full bg-purple-500"></span>
                 <h3 className="relative left-2 top-0.5 text-lg font-semibold text-gray-800">
                   cancha 2 
                 </h3>
               </div>
-              <div className="space-y-2">
+              <div>
                 {cancha2Horarios.map((h) => (
                   <HorarioRow key={h.time} time={h.time} status={h.status} />
                 ))}
