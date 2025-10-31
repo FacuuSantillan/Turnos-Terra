@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import Home from "./pages/Home/Home";
-import DashboardPadel from "./pages/dashboard/dashboard";
+import Dashboard from "./pages/dashboard/dashboard";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -23,7 +23,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<DashboardPadel />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </div>
   );
