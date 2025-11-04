@@ -1,6 +1,5 @@
 const { Router } = require('express');
 
-// Controladores de administrador
 const {
   crearHorarioAdmin,
   obtenerHorariosAdmin,
@@ -10,7 +9,15 @@ const {
   obtenerTurnosAdmin
 } = require('../controller/RoutesAdmin/routesAdmin');
 
-// Controladores de turnos, canchas y usuarios
+const {
+  obtenerTurnosFijos,
+  obtenerTurnosFijosLiberados,
+  crearLiberacion,
+  crearTurnoFijo,
+  modificarTurnoFijo,
+  eliminarTurnoFijo
+} = require('../controller/RoutesAdmin/routesTurnosFijos');
+
 const { crearTurno } = require('../controller/RoutesPost/postTurno');
 const putTurno = require('../controller/RoutesPut/putTurno');
 const deleteTurno = require('../controller/RoutesDelete/deleteTurno');
@@ -21,41 +28,31 @@ const { obtenerCanchas } = require('../controller/RoutesGet/getCanchas');
 
 const router = Router();
 
-// Crear un nuevo turno
-router.post('/crearTurno', crearTurno);
-
-// Modificar turno existente
-router.put('/modificarTurno/:id', putTurno);
-
-// Eliminar turno
-router.delete('/eliminarTurno/:id', deleteTurno);
-
-// Eliminar cancha
-router.delete('/eliminarCancha/:id', deleteCancha);
-
-// Eliminar usuario
-router.delete('/eliminarUsuario/:id', deleteUsuario);
-
-// Obtener todos los horarios
+/* -------------------- GET -------------------- */
 router.get('/', obtenerHorariosAdmin);
-
-// obtener turnos
-router.get('/getTurnos', obtenerTurnosAdmin)
-
+router.get('/getTurnos', obtenerTurnosAdmin);
 router.get('/getUsuario/:id', obtenerUsuarioPorId);
-
 router.get('/getCanchas', obtenerCanchas);
+router.get('/turnos-fijos', obtenerTurnosFijos);
+router.get('/turnos-fijos/liberados', obtenerTurnosFijosLiberados);
 
-// Crear horario
+/* -------------------- POST -------------------- */
 router.post('/', crearHorarioAdmin);
+router.post('/crearTurno', crearTurno);
+router.post('/turnos-fijos/liberar', crearLiberacion);
+router.post('/turnos-fijos/crear', crearTurnoFijo);
 
-// Modificar horario
+/* -------------------- PUT -------------------- */
+router.put('/modificarTurno/:id', putTurno);
 router.put('/modificarHora/:id', modificarHorarioAdmin);
-
-// Cambiar estado (activo/inactivo)
 router.put('/:id', cambiarEstadoHorarioAdmin);
+router.put('/turnos-fijos/modificar/:id', modificarTurnoFijo);
 
-// Eliminar horario
+/* -------------------- DELETE -------------------- */
 router.delete('/:id', eliminarHorarioAdmin);
+router.delete('/eliminarTurno/:id', deleteTurno);
+router.delete('/eliminarCancha/:id', deleteCancha);
+router.delete('/eliminarUsuario/:id', deleteUsuario);
+router.delete('/turnos-fijos/:id', eliminarTurnoFijo);
 
 module.exports = router;

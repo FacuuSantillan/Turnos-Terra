@@ -8,6 +8,17 @@ export const POST_TURNO_ERROR = 'POST_TURNO_ERROR'
 export const DELETE_TURNO = "DELETE_TURNO";
 export const DELETE_TURNO_ERROR = "DELETE_TURNO_ERROR";
 
+export const GET_TURNOS_FIJOS = "GET_TURNOS_FIJOS";
+export const GET_TURNOS_FIJOS_LIBERADOS = "GET_TURNOS_FIJOS_LIBERADOS";
+export const POST_TURNO_FIJO_LIBERADO = "POST_TURNO_FIJO_LIBERADO";
+export const POST_TURNO_FIJO_LIBERADO_ERROR = "POST_TURNO_FIJO_LIBERADO_ERROR";
+export const POST_TURNO_FIJO = "POST_TURNO_FIJO";
+export const POST_TURNO_FIJO_ERROR = "POST_TURNO_FIJO_ERROR";
+export const UPDATE_TURNO_FIJO = "UPDATE_TURNO_FIJO";
+export const UPDATE_TURNO_FIJO_ERROR = "UPDATE_TURNO_FIJO_ERROR";
+export const DELETE_TURNO_FIJO = "DELETE_TURNO_FIJO";
+export const DELETE_TURNO_FIJO_ERROR = "DELETE_TURNO_FIJO_ERROR";
+
 export const getHorarios = () => {
   return async (dispatch) => {
     
@@ -93,6 +104,102 @@ export const deleteTurno = (id) => {
         payload: error.response?.data
       });
       return { success: false, error: error.response?.data };
+    }
+  };
+};
+
+export const getTurnosFijos = () => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.get('/turnos-fijos'); 
+      return dispatch({ type: GET_TURNOS_FIJOS, payload: response.data });
+    } catch (error) {
+      console.error("Error al obtener turnos fijos:", error.response?.data);
+    }
+  };
+};
+
+export const getTurnosFijosLiberados = () => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.get('/turnos-fijos/liberados'); 
+      return dispatch({ type: GET_TURNOS_FIJOS_LIBERADOS, payload: response.data });
+    } catch (error) {
+      console.error("Error al obtener turnos fijos liberados:", error.response?.data);
+    }
+  };
+};
+
+export const liberarTurnoFijo = (liberacionData) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.post('/turnos-fijos/liberar', liberacionData);
+      dispatch({ type: POST_TURNO_FIJO_LIBERADO, payload: response.data });
+      return { success: true, data: response.data };
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      dispatch({ type: POST_TURNO_FIJO_LIBERADO_ERROR, payload: errorData });
+      return { success: false, error: errorData };
+    }
+  };
+};
+
+export const createTurnoFijo = (turnoFijoData) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.post('/turnos-fijos/crear', turnoFijoData);
+      const nuevoTurnoFijo = response.data;
+
+      dispatch({
+        type: POST_TURNO_FIJO,
+        payload: nuevoTurnoFijo
+      });
+      return { success: true, data: nuevoTurnoFijo };
+
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      dispatch({
+        type: POST_TURNO_FIJO_ERROR,
+        payload: errorData
+      });
+      return { success: false, error: errorData };
+    }
+  };
+};
+
+export const updateTurnoFijo = (id, turnoFijoData) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(`/turnos-fijos/modificar/${id}`, turnoFijoData);
+      const turnoActualizado = response.data;
+      dispatch({
+        type: UPDATE_TURNO_FIJO,
+        payload: turnoActualizado
+      });
+      return { success: true, data: turnoActualizado };
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      console.error("Error al modificar turno fijo:", errorData);
+      dispatch({ type: UPDATE_TURNO_FIJO_ERROR, payload: errorData });
+      return { success: false, error: errorData };
+    }
+  };
+};
+
+export const deleteTurnoFijo = (id) => {
+  return async (dispatch) => {
+    try {
+      await axios.delete(`/turnos-fijos/${id}`);
+      dispatch({
+        type: DELETE_TURNO_FIJO,
+        payload: id 
+      });
+      return { success: true };
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      console.error("Error al eliminar turno fijo:", errorData);
+      dispatch({ type: DELETE_TURNO_FIJO_ERROR, payload: errorData });
+      return { success: false, error: errorData };
     }
   };
 };

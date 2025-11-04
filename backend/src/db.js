@@ -33,26 +33,41 @@ let capsEntries = entries.map(([name, model]) => [
 sequelize.models = Object.fromEntries(capsEntries);
 
 // Extraer modelos tal como los definiste en cada archivo
-const { Cancha, Turno, Usuario, Horario } = sequelize.models;
+// --- Extraer TODOS los modelos ---
+const { 
+  Cancha, 
+  Turno, 
+  Usuario, 
+  Horario, 
+  TurnoFijo,          // <-- Nuevo
+  TurnoFijoLiberado   // <-- Nuevo
+} = sequelize.models;
 
-// --- Relaciones ---
+// --- Relaciones de Turno Normal ---
 Turno.belongsTo(Usuario, { foreignKey: "usuario_id" });
+Usuario.hasMany(Turno, { foreignKey: "usuario_id" });
+
 Turno.belongsTo(Cancha, { foreignKey: "cancha_id" });
+Cancha.hasMany(Turno, { foreignKey: "cancha_id" });
 
 Cancha.hasMany(Horario, { foreignKey: "cancha_id" });
 Horario.belongsTo(Cancha, { foreignKey: "cancha_id" });
 
-Turno.belongsToMany(Horario, { 
-  through: 'turno_horarios', 
-  foreignKey: 'turno_id', 
-  otherKey: 'horario_id'
-});
-Horario.belongsToMany(Turno, { 
-  through: 'turno_horarios', 
-  foreignKey: 'horario_id', 
-  otherKey: 'turno_id' // Corregí 'botherKey'
-});
+Turno.belongsToMany(Horario, { through: 'turno_horarios', foreignKey: 'turno_id', otherKey: 'horario_id' });
+Horario.belongsToMany(Turno, { through: 'turno_horarios', foreignKey: 'horario_id', otherKey: 'turno_id' });
 
+TurnoFijo.belongsTo(Usuario, { foreignKey: "usuario_id" });
+Usuario.hasMany(TurnoFijo, { foreignKey: "usuario_id" });
+
+TurnoFijo.belongsTo(Cancha, { foreignKey: "cancha_id" });
+Cancha.hasMany(TurnoFijo, { foreignKey: "cancha_id" });
+
+TurnoFijo.belongsToMany(Horario, { through: 'turno_fijo_horarios', foreignKey: 'turno_fijo_id', otherKey: 'horario_id' });
+Horario.belongsToMany(TurnoFijo, { through: 'turno_fijo_horarios', foreignKey: 'horario_id', otherKey: 'turno_fijo_id' });
+
+// --- (NUEVO) Relaciones de Liberación ---
+TurnoFijo.hasMany(TurnoFijoLiberado, { foreignKey: "turno_fijo_id" });
+TurnoFijoLiberado.belongsTo(TurnoFijo, { foreignKey: "turno_fijo_id" });
 module.exports = {
   ...sequelize.models,
   conn: sequelize,

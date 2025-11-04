@@ -62,6 +62,7 @@ const crearTurno = async (req, res) => {
     const turnoConDatos = await Turno.findByPk(nuevoTurno.id, {
       include: [
         { model: Usuario, attributes: ['nombre', 'apellido', 'telefono'] },
+        { model: Cancha, attributes: ['nombre'] }
       ],
     });
 

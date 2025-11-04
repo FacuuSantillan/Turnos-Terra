@@ -9,11 +9,14 @@ import NuevoTurnoModal from "./components/actionBar/nuevoTurnoModal";
 import VerDisponibilidadModal from "./components/actionBar/verDisponibilidad";
 import ConfigurarHorariosModal from "./components/actionBar/ConfigurarHorariosModal";
 import CalculadoraGastosModal from "./components/actionBar/calculadoraGastosModal";
+import TurnosFijosModal from "./components/actionBar/TurnosFijosModal";
 
 import FiltroTurnos from "./components/filtros/Filtros";
 
 import TurnosTable from "./components/cards/TurnosTable";
 import TurnoDetalleModal from "./components/cards/TurnoDetalleModal";
+
+
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,6 +26,7 @@ const Dashboard = () => {
   const [toastInfo, setToastInfo] = useState(null); 
   const [selectedTurno, setSelectedTurno] = useState(null);
   const [isDetalleModalOpen, setIsDetalleModalOpen] = useState(false);
+  const [isTurnosFijosOpen, setIsTurnosFijosOpen] = useState(false);
 
   const showSuccessToast = () => {
     setToastInfo({ message: "¡Operación exitosa!", type: "success" });
@@ -50,7 +54,7 @@ const Dashboard = () => {
         onVerDisponibilidadClick={() => setIsDisponibilidadOpen(true)} 
         onConfigurarClick={() => setIsConfigurarHorariosOpen(true)}
         onCalculadoraClick={() => setIsCalculadoraOpen(true)}
-
+        onTurnosFijosClick={() => setIsTurnosFijosOpen(true)}
       />
 
       <NuevoTurnoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
@@ -58,6 +62,8 @@ const Dashboard = () => {
       <ConfigurarHorariosModal isOpen={isConfigurarHorariosOpen} onClose={() => setIsConfigurarHorariosOpen(false)} />
       <CalculadoraGastosModal isOpen={isCalculadoraOpen} onClose={() => setIsCalculadoraOpen(false)} />
       <TurnoDetalleModal isOpen={isDetalleModalOpen} onClose={() => setIsDetalleModalOpen(false)} turno={selectedTurno} />
+      <TurnosFijosModal isOpen={isTurnosFijosOpen} onClose={() => setIsTurnosFijosOpen(false)} />
+        
       <div className="px-6 py-4">
         <FiltroTurnos />
         <TurnosTable onTurnoClick={handleTurnoClick} />

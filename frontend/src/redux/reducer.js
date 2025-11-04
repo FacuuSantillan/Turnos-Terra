@@ -6,7 +6,13 @@ import {
   POST_TURNO,
   POST_TURNO_ERROR,
   DELETE_TURNO,
-  DELETE_TURNO_ERROR
+  DELETE_TURNO_ERROR,
+  GET_TURNOS_FIJOS,
+  GET_TURNOS_FIJOS_LIBERADOS,
+  POST_TURNO_FIJO_LIBERADO,
+  POST_TURNO_FIJO_LIBERADO_ERROR,
+  POST_TURNO_FIJO,
+  POST_TURNO_FIJO_ERROR
 } from "./actions";
 
 //---------------------Estados iniciales--------------------------------//
@@ -15,7 +21,10 @@ const initialState = {
   horariosCopy: [], 
   
   turnos:[],
-  turnosCopy:[]
+  turnosCopy:[],
+
+  turnosFijos:[],
+  turnosFijosLiberados: []
 };
 
 function reducer(state = initialState, action) {
@@ -89,7 +98,38 @@ function reducer(state = initialState, action) {
 
     case DELETE_TURNO_ERROR:
       console.error("REDUCER: Error en DELETE_TURNO:", action.payload);
-      return state; // No cambiamos el estado
+      return state; 
+
+        case GET_TURNOS_FIJOS:
+        return {
+          ...state,
+          turnosFijos: action.payload
+        };
+
+      case GET_TURNOS_FIJOS_LIBERADOS:
+        return {
+          ...state,
+          turnosFijosLiberados: action.payload
+        };
+
+      case POST_TURNO_FIJO:
+      	return {
+      	  ...state,
+      	  turnosFijos: [...state.turnosFijos, action.payload]
+      	};
+
+      case POST_TURNO_FIJO_LIBERADO:
+      	return {
+      	  ...state,
+      	  turnosFijosLiberados: [...state.turnosFijosLiberados, action.payload]
+      	};
+
+      case POST_TURNO_ERROR:
+      case DELETE_TURNO_ERROR:
+      case POST_TURNO_FIJO_LIBERADO_ERROR:
+      case POST_TURNO_FIJO_ERROR:
+      	console.error("Error en Reducer:", action.type, action.payload);
+      	return state; // No cambia el estado
 
   	default:
   	  return state;
