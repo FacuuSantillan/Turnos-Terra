@@ -15,12 +15,9 @@ const FiltroTurnos = () => {
   };
 
   return (
-    // Contenedor principal (tarjeta blanca)
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-white rounded-xl shadow-lg p-6 relative top-[-3vh]">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Filtrar Turnos</h2>
 
-      {/* Grid para los filtros */}
-      {/* Se apila en 1 columna en móviles, 2 en tablets (md) y 4 en escritorio (lg) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Filtro: Cancha */}
@@ -50,8 +47,7 @@ const FiltroTurnos = () => {
             id="filtroFecha"
             value={filtroFecha}
             onChange={(e) => setFiltroFecha(e.target.value)}
-            // El placeholder 'dd/mm/aaaa' no es estándar en 'type="date"', 
-            // pero el navegador lo maneja.
+         
             className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
           />
         </div>
@@ -71,7 +67,6 @@ const FiltroTurnos = () => {
             <option value="09:00">09:00</option>
             <option value="10:00">10:00</option>
             <option value="11:00">11:00</option>
-            {/* Agrega más horarios aquí */}
           </select>
         </div>
 
@@ -104,7 +99,6 @@ const FiltroTurnos = () => {
 
         {/* Conteo de turnos */}
         <span className="text-sm text-gray-500">
-          {/* Este número debería venir de tus props o estado */}
           Mostrando 2 de 2 turnos
         </span>
       </div>

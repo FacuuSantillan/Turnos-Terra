@@ -9,11 +9,6 @@ axios.defaults.baseURL = 'http://localhost:3001/'
 
 
 function App() {
-  // const { pathname } = useLocation();
-
-// hacer codigo de reserva con id del turno
-// hacer login para ingresar a la dashboard de gestion
-// maquetar un cobro o pago parcial del turno
 
   return (
     <div>

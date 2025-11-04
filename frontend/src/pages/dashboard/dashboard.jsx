@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import Header from "./components/header/header";
 import Toast from "./components/header/toastContainer/toast";
+
 import EstadisticasCanchas from "./components/estadisticasCanchas/estadisticasCanchas";
+
 import ActionBar from "./components/actionBar/actionBar"
 import NuevoTurnoModal from "./components/actionBar/nuevoTurnoModal";
 import VerDisponibilidadModal from "./components/actionBar/verDisponibilidad";
 import ConfigurarHorariosModal from "./components/actionBar/ConfigurarHorariosModal";
 import CalculadoraGastosModal from "./components/actionBar/calculadoraGastosModal";
+
 import FiltroTurnos from "./components/filtros/Filtros";
+
+import TurnosTable from "./components/cards/TurnosTable";
+import TurnoDetalleModal from "./components/cards/TurnoDetalleModal";
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,11 +21,18 @@ const Dashboard = () => {
   const [isConfigurarHorariosOpen, setIsConfigurarHorariosOpen] = useState(false)
   const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false)
   const [toastInfo, setToastInfo] = useState(null); 
+  const [selectedTurno, setSelectedTurno] = useState(null);
+  const [isDetalleModalOpen, setIsDetalleModalOpen] = useState(false);
 
   const showSuccessToast = () => {
     setToastInfo({ message: "¡Operación exitosa!", type: "success" });
     setTimeout(() => setToastInfo(null), 3000);
   };
+
+  const handleTurnoClick = (turno) => {
+    setSelectedTurno(turno);
+    setIsDetalleModalOpen(true);
+  };
 
   const showErrorToast = () => {
     setToastInfo({ message: "Hubo un error.", type: "error" });
@@ -44,9 +57,10 @@ const Dashboard = () => {
       <VerDisponibilidadModal isOpen={isDisponibilidadOpen} onClose={() => setIsDisponibilidadOpen(false)} />
       <ConfigurarHorariosModal isOpen={isConfigurarHorariosOpen} onClose={() => setIsConfigurarHorariosOpen(false)} />
       <CalculadoraGastosModal isOpen={isCalculadoraOpen} onClose={() => setIsCalculadoraOpen(false)} />
-
+      <TurnoDetalleModal isOpen={isDetalleModalOpen} onClose={() => setIsDetalleModalOpen(false)} turno={selectedTurno} />
       <div className="px-6 py-4">
         <FiltroTurnos />
+        <TurnosTable onTurnoClick={handleTurnoClick} />
       </div>
 
     </div>

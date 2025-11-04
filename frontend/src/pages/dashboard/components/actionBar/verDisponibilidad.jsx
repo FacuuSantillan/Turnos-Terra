@@ -65,7 +65,7 @@ const getHoyFecha = () => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+      className="backdrop-blur-sm fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
       onClick={onClose}
     >
       <div 

@@ -1,38 +1,101 @@
-import React, { useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, useMemo } from 'react';
+import { XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useDispatch, useSelector } from 'react-redux';
+import { getHorarios, postTurno, getTurnos } from '../../../../redux/actions';
 
 const NuevoTurnoModal = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
+  const horarios = useSelector((state) => state.horariosCopy);
+  const turnos = useSelector((state) => state.turnos);
+
+  const [apiError, setApiError] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
     telefono: '',
     fecha: '',
-    hora: '',
+    horas: [],
     cancha: '',
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(getHorarios());
+      dispatch(getTurnos());
+    }
+  }, [isOpen, dispatch]);
+
+  const horariosFiltrados = useMemo(() => {
+    const canchaId = Number(formData.cancha);
+    const fecha = formData.fecha;
+    if (!canchaId || !fecha) return [];
+
+    const horariosReservadosIds = turnos
+      ?.filter((t) => t.fecha.startsWith(fecha) && t.cancha_id === canchaId)
+      .flatMap((t) => t.Horarios?.map((h) => h.id) || []);
+
+    return horarios
+      ?.filter((h) => h.cancha_id === canchaId && h.activo)
+      .map((h) => ({
+        ...h,
+        isReservado: horariosReservadosIds?.includes(h.id),
+      }))
+      .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
+  }, [horarios, turnos, formData.cancha, formData.fecha]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setApiError(null);
+    if (name === 'cancha' || name === 'fecha') {
+      setFormData((prev) => ({ ...prev, [name]: value, horas: [] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleHorasChange = (id) => {
+    setFormData((prev) => {
+      const already = prev.horas.includes(id);
+      return {
+        ...prev,
+        horas: already ? prev.horas.filter((h) => h !== id) : [...prev.horas, id],
+      };
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormData({ nombre: '', apellido: '', telefono: '', fecha: '', hora: '', cancha: '' });
-    onClose();
+    setApiError(null);
+    const turno = {
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      telefono: formData.telefono,
+      fecha: formData.fecha,
+      cancha_id: Number(formData.cancha),
+      horarios_ids: formData.horas,
+    };
+
+    const result = await dispatch(postTurno(turno));
+    if (result.success) {
+      setFormData({ nombre: '', apellido: '', telefono: '', fecha: '', horas: [], cancha: '' });
+      onClose();
+    } else {
+      setApiError(result.error?.error || 'Error al crear el turno. Intente de nuevo.');
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div
-    className="fixed inset-0 bg-[rgba(0,0,0,0.35)] flex justify-center items-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md relative border border-gray-100"
+        className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative border border-gray-100 transition-all duration-300 hover:shadow-3xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Botón cerrar */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
@@ -40,100 +103,56 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
           <XMarkIcon className="h-6 w-6" />
         </button>
 
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">
-          Nuevo Turno
-        </h2>
+        {/* Título */}
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Nuevo Turno</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre
-            </label>
-            <input
-              type="text"
-              name="nombre"
-              id="nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900"
-              required
-            />
+        {/* Error */}
+        {apiError && (
+          <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-3 rounded-lg mb-5 flex items-start gap-2">
+            <ExclamationTriangleIcon className="h-5 w-5 mt-0.5 text-red-400" />
+            <div>
+              <p className="font-semibold">Error al guardar</p>
+              <p className="text-sm">{apiError}</p>
+            </div>
           </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {['nombre', 'apellido', 'telefono'].map((campo) => (
+            <div key={campo}>
+              <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+                {campo}
+              </label>
+              <input
+                type={campo === 'telefono' ? 'tel' : 'text'}
+                name={campo}
+                value={formData[campo]}
+                onChange={handleChange}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus:bg-white shadow-sm hover:shadow-md transition focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                required
+              />
+            </div>
+          ))}
 
           <div>
-            <label htmlFor="apellido" className="block text-sm font-medium text-gray-700 mb-1">
-              Apellido
-            </label>
-            <input
-              type="text"
-              name="apellido"
-              id="apellido"
-              value={formData.apellido}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono
-            </label>
-            <input
-              type="tel"
-              name="telefono"
-              id="telefono"
-              value={formData.telefono}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="fecha" className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
             <input
               type="date"
               name="fecha"
-              id="fecha"
               value={formData.fecha}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus:bg-white shadow-sm hover:shadow-md transition focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="hora" className="block text-sm font-medium text-gray-700 mb-1">
-              Hora
-            </label>
-            <select
-              name="hora"
-              id="hora"
-              value={formData.hora}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900"
-              required
-            >
-              <option value="">Seleccionar hora</option>
-              <option value="9:00">09:00</option>
-              <option value="10:30">10:30</option>
-              <option value="12:00">12:00</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="cancha" className="block text-sm font-medium text-gray-700 mb-1">
-              Cancha
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cancha</label>
             <select
               name="cancha"
-              id="cancha"
               value={formData.cancha}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50 focus:bg-white shadow-sm hover:shadow-md transition focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               required
             >
               <option value="">Seleccionar cancha</option>
@@ -142,17 +161,76 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
             </select>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          {/* Horarios */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Horarios disponibles
+            </label>
+            <div className="w-full max-h-48 overflow-y-auto border border-gray-200 rounded-2xl bg-gradient-to-b from-white to-gray-50 shadow-inner p-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {!formData.cancha || !formData.fecha ? (
+                <p className="text-gray-500 text-center py-5 text-sm">
+                  Selecciona una cancha y una fecha.
+                </p>
+              ) : horariosFiltrados.length === 0 ? (
+                <p className="text-gray-500 text-center py-5 text-sm">
+                  No hay horarios disponibles.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {horariosFiltrados.map((h) => (
+                    <label
+                      key={h.id}
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200
+                        ${
+                          h.isReservado
+                            ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                            : formData.horas.includes(h.id)
+                            ? 'bg-green-100 border-green-400 text-green-700 shadow-sm'
+                            : 'bg-white border-gray-200 hover:bg-gray-50 cursor-pointer'
+                        }`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          value={h.id}
+                          checked={formData.horas.includes(h.id)}
+                          onChange={() => handleHorasChange(h.id)}
+                          disabled={h.isReservado}
+                          className="relative right-2 rounded text-green-600 focus:ring-green-500 disabled:cursor-not-allowed"
+                        />
+                        <span
+                          className={`text-sm font-medium ${
+                            h.isReservado ? 'line-through' : ''
+                          }`}
+                        >
+                          {h.hora_inicio}
+                        </span>
+                      </div>
+                      {h.isReservado ? (
+                        <span className=" text-xs text-gray-500 font-medium">Reservado</span>
+                      ) : formData.horas.includes(h.id) ? (
+                        <span className="text-xs text-green-600 font-medium">✔</span>
+                      ) : null}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Botones */}
+          <div className="relative right-[-1vh] flex justify-end space-x-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 transition"
+              className="px-[4.5vh] py-2.5 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 transition font-medium"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-lg text-white bg-green-600 hover:bg-green-700 transition"
+              disabled={formData.horas.length === 0}
+              className="px-[4.5vh] py-2.5 rounded-lg text-white font-medium bg-green-600 hover:bg-green-700 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-sm"
             >
               Guardar
             </button>

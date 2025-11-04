@@ -45,7 +45,7 @@ const CalculadoraGastosModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-    className="fixed inset-0 bg-[rgba(0,0,0,0.35)] flex justify-center items-center z-50 p-4"
+    className="fixed backdrop-blur-sm inset-0 bg-[rgba(0,0,0,0.35)] flex justify-center items-center z-50 p-4"
       onClick={onClose}
     >
       <div

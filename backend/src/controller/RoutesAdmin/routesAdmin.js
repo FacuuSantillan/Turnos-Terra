@@ -1,5 +1,4 @@
-const { Horario } = require('../../db');
-const { Turno } =require('../../db')
+const { Horario, Turno, Usuario, Cancha, Turnos } = require('../../db');
 
 // Crear un nuevo horario
 const crearHorarioAdmin = async (req, res) => {
@@ -102,6 +101,21 @@ const obtenerTurnosAdmin = async (req, res) => {
   try {
     const turnos = await Turno.findAll({
       order: [['id', 'DESC']], 
+      include: [
+        {
+          model: Usuario,
+          attributes: ['nombre', 'apellido', 'telefono']
+        },
+        {
+          model: Cancha,
+          attributes: ['nombre'] 
+        },
+        {
+          model: Horario,
+          attributes: ['id', 'hora_inicio'], 
+          through: { attributes: [] } 
+        }
+      ]
     });
 
     res.status(200).json(turnos);

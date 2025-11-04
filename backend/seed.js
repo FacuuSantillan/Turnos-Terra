@@ -1,52 +1,58 @@
-const { Horario, Cancha } = require('./src/db.js'); // No importamos Horario2
+const { Horario, Cancha } = require('./src/db.js');
 const { Op } = require('sequelize');
 
 async function seedDatabase() {
-  try {
-  	console.log("⏳ Inicializando datos...");
+  try {
+    console.log("⏳ Inicializando datos...");
 
-  	// ---------- 1. CREA CANCHAS PRIMERO ----------
-  	const existingCanchas = await Cancha.count();
-  	if (existingCanchas === 0) {
-  	  await Cancha.bulkCreate([
-  	  	{ nombre: "Cancha 1", ubicacion: "adelante", tipo: "césped", techada: true },
-  	  	{ nombre: "Cancha 2", ubicacion: "atrás", tipo: "césped", techada: true },
-  	  ]);
-  	  console.log("✅ Canchas creadas correctamente.");
-  	} else {
-  	  console.log("ℹ️ Las canchas ya existen.");
-  	}
+    // ---------- 1. CREA CANCHAS ----------
+    const canchasData = [
+      { nombre: "Cancha 1", ubicacion: "adelante", tipo: "césped", techada: true },
+      { nombre: "Cancha 2", ubicacion: "atrás", tipo: "césped", techada: true },
+    ];
 
-  	// ---------- 2. CREA 48 HORARIOS (24 por cancha) ----------
-  	const existingHorarios = await Horario.count();
-  	if (existingHorarios === 0) {
-  	  const horarios = [];
-  	  
-  	  // Itera sobre las canchas (ID 1 y ID 2)
-  	  for (let canchaId = 1; canchaId <= 2; canchaId++) {
-  	  	// Crea 24 horarios para CADA cancha
-  	  	for (let h = 0; h < 24; h++) {
-  	  	  const horaInicio = `${h.toString().padStart(2, '0')}:00`;
-  	  	  const horaFin = `${(h + 1).toString().padStart(2, '0')}:00`;
-  	  	  horarios.push({
-  	  	  	hora_inicio: horaInicio,
-  	  	  	hora_fin: horaFin,
-  	  	  	activo: true,
-  	  	  	cancha_id: canchaId // <-- ESTO ES LO QUE FALTABA
-  	  	  });
-  	  	}
-  	  }
-  	  await Horario.bulkCreate(horarios); 
-  	  console.log("✅ 48 Horarios (24 por cancha) creados.");
-  	} else {
-  	  console.log("ℹ️ Los horarios ya existen.");
-  	}
+    for (const cancha of canchasData) {
+      const [existing, created] = await Cancha.findOrCreate({
+        where: { nombre: cancha.nombre },
+        defaults: cancha,
+      });
+      if (created) {
+        console.log(`✅ ${cancha.nombre} creada.`);
+      } else {
+        console.log(`ℹ️ ${cancha.nombre} ya existe.`);
+      }
+    }
 
-  	console.log("🌱 Seed completado con éxito.");
+    const totalHorarios = await Horario.count();
 
-  } catch (error) {
-  	console.error("❌ Error al inicializar la base de datos:", error);
-  }
+    if (totalHorarios === 0) {
+      const horarios = [];
+
+      const canchas = await Cancha.findAll();
+      for (const cancha of canchas) {
+        for (let h = 0; h < 24; h++) {
+          const horaInicio = `${h.toString().padStart(2, '0')}:00`;
+          const horaFin = `${(h + 1).toString().padStart(2, '0')}:00`;
+          horarios.push({
+            hora_inicio: horaInicio,
+            hora_fin: horaFin,
+            activo: true,
+            cancha_id: cancha.id,
+          });
+        }
+      }
+
+      await Horario.bulkCreate(horarios);
+      console.log(`✅ ${horarios.length} horarios creados (${24 * canchas.length} total).`);
+    } else {
+      console.log("ℹ️ Los horarios ya existen, no se crearán nuevamente.");
+    }
+
+    console.log("🌱 Seed completado con éxito.");
+
+  } catch (error) {
+    console.error("❌ Error al inicializar la base de datos:", error);
+  }
 }
 
 module.exports = { seedDatabase };

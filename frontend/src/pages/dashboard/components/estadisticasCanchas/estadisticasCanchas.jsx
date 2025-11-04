@@ -43,7 +43,7 @@ const EstadisticasCanchas = () => {
     : 0;
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-6 py-[-5vh]">
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-lg p-6 flex items-center space-x-4">

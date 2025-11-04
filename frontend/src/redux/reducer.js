@@ -2,7 +2,11 @@
 import {
   GET_HORARIOS,
   GET_TURNOS,
-  PUT_ESTADO_HORARIO
+  PUT_ESTADO_HORARIO,
+  POST_TURNO,
+  POST_TURNO_ERROR,
+  DELETE_TURNO,
+  DELETE_TURNO_ERROR
 } from "./actions";
 
 //---------------------Estados iniciales--------------------------------//
@@ -58,10 +62,39 @@ function reducer(state = initialState, action) {
           horarios: horariosActualizados,
           horariosCopy: [...horariosActualizados]
         };
+      case POST_TURNO:
+      const nuevosTurnos = [action.payload, ...state.turnos];
+      
+      return {
+        ...state,
+        turnos: nuevosTurnos,
+        turnosCopy: nuevosTurnos 
+      };
 
-    default:
-      return state;
-  }
+    case POST_TURNO_ERROR:
+      console.error("ERROR EN REDUCER (POST_TURNO_ERROR):", action.payload);
+      return {
+        ...state 
+      };
+
+    case DELETE_TURNO:
+      const turnosFiltrados = state.turnos.filter(
+        (t) => t.id !== action.payload
+      );
+      return {
+        ...state,
+        turnos: turnosFiltrados,
+        turnosCopy: turnosFiltrados,
+      };
+
+    case DELETE_TURNO_ERROR:
+      console.error("REDUCER: Error en DELETE_TURNO:", action.payload);
+      return state; // No cambiamos el estado
+
+  	default:
+  	  return state;
+  }
 };
+
  
 export default reducer;

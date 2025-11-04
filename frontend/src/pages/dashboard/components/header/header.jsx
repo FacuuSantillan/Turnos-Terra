@@ -14,15 +14,13 @@ const Header = () => {
   });
 
   return (
-    <div className="bg-green-900 text-white p-6 shadow-lg flex justify-between items-center">
+    <div className="relative top-[-1vh] bg-green-900 text-white p-[2vh] shadow-lg flex justify-between items-center">
       
       <div className="flex flex-col flex-1">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight">
           Terra Padel Club
         </h1>
-        <p className="text-lg mt-1 text-green-100">
-          Dashboard
-        </p>
+       
       </div>
 
       <div className="flex-1 flex justify-center">
