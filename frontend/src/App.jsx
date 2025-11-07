@@ -5,7 +5,9 @@ import Dashboard from "./pages/dashboard/dashboard";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 
-axios.defaults.baseURL = 'https://turnos-terra.onrender.com'
+// axios.defaults.baseURL = 'https://turnos-terra.onrender.com'
+axios.defaults.baseURL = 'http://localhost:3001'
+
 
 
 function App() {

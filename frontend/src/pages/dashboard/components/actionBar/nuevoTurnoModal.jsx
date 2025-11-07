@@ -29,7 +29,6 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
     cancha: '',
   });
 
-  // --- Carga inicial ---
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
@@ -48,53 +47,53 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
   }, [isOpen, dispatch]);
 
   // --- Lógica de disponibilidad ---
-  const horariosFiltrados = useMemo(() => {
-    const canchaId = Number(formData.cancha);
-    const fecha = formData.fecha;
+const horariosFiltrados = useMemo(() => {
+  const canchaId = Number(formData.cancha);
+  const fecha = formData.fecha;
 
-    if (!canchaId || !fecha || !Array.isArray(horarios) || !Array.isArray(turnos)) {
-      return [];
+  if (!canchaId || !fecha || !Array.isArray(horarios) || !Array.isArray(turnos)) {
+    return [];
+  }
+
+  const diaSemanaNum = new Date(`${fecha}T00:00:00`).getUTCDay();
+  const diaSemana = diaSemanaNum === 0 ? 7 : diaSemanaNum;
+
+  const getHorarioStatus = (horario) => {
+    if (!horario.activo) return "Deshabilitado";
+
+    const reservado = turnos.some(
+      (t) =>
+        t.fecha.startsWith(fecha) &&
+        t.cancha_id === canchaId &&
+        t.Horarios?.some((h) => h.id === horario.id)
+    );
+    if (reservado) return "Reservado";
+
+    const turnoFijo = turnosFijos.find(
+      (tf) =>
+        tf.cancha_id === canchaId &&
+        tf.dia_semana === diaSemana &&
+        tf.Horarios?.some((h) => h.id === horario.id)
+    );
+
+    if (turnoFijo) {
+      const estaLiberado = liberados.some(
+        (l) => l.turno_fijo_id === turnoFijo.id && l.fecha === fecha
+      );
+      return estaLiberado ? "Disponible" : "Turno Fijo";
     }
 
-    const diaSemanaNum = new Date(`${fecha}T00:00:00`).getUTCDay();
-    const diaSemana = diaSemanaNum === 0 ? 7 : diaSemanaNum;
+    return "Disponible";
+  };
 
-    const getHorarioStatus = (horario) => {
-      if (!horario.activo) return "Deshabilitado";
-
-      const reservado = turnos.some(
-        (t) =>
-          t.fecha.startsWith(fecha) &&
-          t.cancha_id === canchaId &&
-          t.Horarios?.some((h) => h.id === horario.id)
-      );
-      if (reservado) return "Reservado";
-
-      const turnoFijo = turnosFijos.find(
-        (tf) =>
-          tf.cancha_id === canchaId &&
-          tf.dia_semana === diaSemana &&
-          tf.Horarios?.some((h) => h.id === horario.id)
-      );
-
-      if (turnoFijo) {
-        const estaLiberado = liberados.some(
-          (l) => l.turno_fijo_id === turnoFijo.id && l.fecha === fecha
-        );
-        return estaLiberado ? "Disponible" : "Reservado (Fijo)";
-      }
-
-      return "Disponible";
-    };
-
-    return horarios
-      .filter((h) => h.cancha_id === canchaId)
-      .map((h) => ({
-        ...h,
-        status: getHorarioStatus(h),
-      }))
-      .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
-  }, [horarios, turnos, formData.cancha, formData.fecha, turnosFijos, liberados]);
+  return horarios
+    .filter((h) => h.cancha_id === canchaId && h.activo) 
+    .map((h) => ({
+      ...h,
+      status: getHorarioStatus(h),
+    }))
+    .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
+}, [horarios, turnos, formData.cancha, formData.fecha, turnosFijos, liberados]);
 
   // --- Handlers ---
   const handleChange = (e) => {
@@ -178,8 +177,8 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* FORMULARIO */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Inputs de usuario */}
             {['nombre', 'apellido', 'telefono'].map((campo) => (
               <div key={campo}>
                 <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
@@ -196,6 +195,7 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
               </div>
             ))}
 
+            {/* Fecha */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
               <input
@@ -208,6 +208,7 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
               />
             </div>
 
+            {/* Cancha */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cancha</label>
               <select
@@ -242,38 +243,40 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {horariosFiltrados.map((h) => {
-                      let style = "bg-white border-gray-200 hover:bg-gray-50 cursor-pointer";
-                      if (h.status !== 'Disponible') {
-                        style = 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed';
-                      } else if (formData.horas.includes(h.id)) {
-                        style = 'bg-green-100 border-green-400 text-green-700 shadow-sm';
-                      }
+          let style = "bg-white border-gray-200 hover:bg-gray-50 cursor-pointer";
+          let labelText = h.hora_inicio;
 
-                      return (
-                        <label
-                          key={h.id}
-                          className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200 ${style}`}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              value={h.id}
-                              checked={formData.horas.includes(h.id)}
-                              onChange={() => handleHorasChange(h.id)}
-                              disabled={h.status !== 'Disponible'}
-                              className="relative right-2 rounded text-green-600 focus:ring-green-500 disabled:cursor-not-allowed disabled:text-gray-400"
-                            />
-                            <span
-                              className={`text-sm font-medium ${
-                                h.status !== 'Disponible' ? 'line-through' : ''
-                              }`}
-                            >
-                              {h.hora_inicio}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
+          if (h.status === "Reservado") {
+            labelText = `${h.hora_inicio} - Reservado`;
+            style = "bg-gray-100 text-1 border-red-300 text-gray-600 cursor-not-allowed";
+          } else if (h.status === "Turno Fijo") {
+            labelText = `${h.hora_inicio} - Turno Fijo`;
+            style = "bg-gray-100 text-1 border-gray-300 text-orange-600 cursor-not-allowed";
+          } else if (h.status === "Disponible") {
+            if (formData.horas.includes(h.id)) {
+              style = "bg-green-100 border-green-400 text-green-700 shadow-sm";
+            }
+          }
+
+          return (
+            <label
+              key={h.id}
+              className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200 ${style}`}
+            >
+      <div className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        value={h.id}
+        checked={formData.horas.includes(h.id)}
+        onChange={() => handleHorasChange(h.id)}
+        disabled={h.status !== "Disponible"}
+        className=" text-xs w-5 h-5 shrink-0 rounded border-gray-300 text-green-600 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60"
+      />
+        <span className="relative left-2 text-xs font-medium">{labelText}</span>
+      </div>
+    </label>
+  );
+})}
                   </div>
                 )}
               </div>
@@ -300,7 +303,7 @@ const NuevoTurnoModal = ({ isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* ✅ Mensaje de éxito centrado */}
+      {/* ✅ Mensaje de éxito */}
       {showSuccess && (
         <div className="fixed inset-0 flex justify-center items-center z-[9999]">
           <div className="bg-green-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 text-lg font-semibold animate-fadeIn">

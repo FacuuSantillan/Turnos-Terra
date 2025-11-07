@@ -3,6 +3,8 @@ import axios from 'axios';
 export const GET_HORARIOS = 'GET_HORARIOS'; 
 export const GET_TURNOS = 'GET_TURNOS'
 export const PUT_ESTADO_HORARIO = 'PUT_ESTADO_HORARIO'
+export const UPDATE_DATOS_TURNO = 'UPDATE_DATOS_TURNO'
+export const UPDATE_DATOS_TURNO_ERROR = 'UPDATE_DATOS_TURNO_ERROR'
 export const POST_TURNO = 'POST_TURNO'
 export const POST_TURNO_ERROR = 'POST_TURNO_ERROR'
 export const DELETE_TURNO = "DELETE_TURNO";
@@ -108,6 +110,25 @@ export const deleteTurno = (id) => {
   };
 };
 
+export const updateTurno = (id, turnoData) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(`/modificarTurno/${id}`, turnoData);
+      const turnoActualizado = response.data;
+      dispatch({
+        type: UPDATE_DATOS_TURNO,
+        payload: turnoActualizado
+      });
+      return { success: true, data: turnoActualizado };
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      console.error("Error al modificar turno fijo:", errorData);
+      dispatch({ type: UPDATE_DATOS_TURNO_ERROR, payload: errorData });
+      return { success: false, error: errorData };
+    }
+  };
+};
+
 export const getTurnosFijos = () => {
   return async (dispatch) => {
     try {
@@ -166,6 +187,8 @@ export const createTurnoFijo = (turnoFijoData) => {
     }
   };
 };
+
+
 
 export const updateTurnoFijo = (id, turnoFijoData) => {
   return async (dispatch) => {

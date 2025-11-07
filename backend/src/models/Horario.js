@@ -19,6 +19,10 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    disponible: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
   
   }, { timestamps: false, tableName: 'horarios' }); 
 };

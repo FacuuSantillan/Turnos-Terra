@@ -129,7 +129,7 @@ function reducer(state = initialState, action) {
       case POST_TURNO_FIJO_LIBERADO_ERROR:
       case POST_TURNO_FIJO_ERROR:
       	console.error("Error en Reducer:", action.type, action.payload);
-      	return state; // No cambia el estado
+      	return state; 
 
   	default:
   	  return state;
