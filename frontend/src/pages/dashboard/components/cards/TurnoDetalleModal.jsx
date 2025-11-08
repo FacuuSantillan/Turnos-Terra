@@ -314,7 +314,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
                         <option key={h.id} value={h.hora_inicio}>
                           {h.hora_inicio.slice(0, 5)}
                         </option>
-                      ))}
+                      ))};
                   </select>
                 </div>
 
