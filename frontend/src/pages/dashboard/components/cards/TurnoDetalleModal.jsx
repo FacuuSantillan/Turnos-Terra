@@ -324,7 +324,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
                   </label>
                   <select
                     name="hora_fin"
-                    value={formData.hora_fin || ''}
+                    value={formData.hora_fin}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
