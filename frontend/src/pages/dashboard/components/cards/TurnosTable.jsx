@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import TurnoForm from '../hooks/TurnoForm';
+import TurnoForm from '../hooks/turnoForm';
 import TurnoDetalleModal from './TurnoDetalleModal';
+
 import {
   getTurnos,
   getTurnosFijos,
@@ -10,6 +11,7 @@ import {
   getHorarios,
   getTurnosFijosLiberados,
 } from '../../../../redux/actions';
+
 import {
   CalendarDaysIcon,
   CheckCircleIcon,
