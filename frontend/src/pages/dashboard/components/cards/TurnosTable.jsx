@@ -164,15 +164,17 @@ const TurnosTable = () => {
     setTurnoSeleccionado(turno);
     setShowDetalleModal(true);
   };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <div className="tennis-ball"></div>
-        <p className="text-gray-600 font-medium">Cargando turnos...</p>
-      </div>
-    );
-  }
+  
+if (loading) {
+  return (
+       <div className="flex flex-col items-center justify-center py-10 space-y-6">
+    <div className="loader-circle"></div>
+      <p className="mt-6 text-gray-700 font-medium text-lg tracking-wide">
+        Cargando horarios...
+      </p>
+    </div>
+  );
+}
 
   const handleDetalleModalClose = () => {
     setShowDetalleModal(false);

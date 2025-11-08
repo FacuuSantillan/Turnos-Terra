@@ -49,3 +49,22 @@ h1 {
 .form-check-input:focus {
   box-shadow: none;
 }
+.loader-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 5px solid #d1d5db;
+  border-top: 5px solid #a3e635; /* verde padel */
+  border-right: 5px solid #84cc16;
+  animation: spin 1.2s linear infinite, glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px #bef264, 0 0 10px #a3e635; }
+  100% { box-shadow: 0 0 20px #bef264, 0 0 35px #a3e635; }
+}

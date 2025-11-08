@@ -164,50 +164,31 @@ const VerDisponibilidadModal = ({ isOpen, onClose }) => {
         {/* CUERPO */}
         <div className="p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {/* Selector de fecha */}
-          <div className="mb-6">
-            <label
-              htmlFor="fechaDisp"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Seleccionar Fecha
-            </label>
-            <input
-              type="date"
-              id="fechaDisp"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-            />
-          </div>
+        <div className="mb-6">
+  <label
+    htmlFor="fechaDisp"
+    className="block text-sm font-medium text-gray-700 mb-1"
+  >
+    Seleccionar Fecha
+  </label>
+  <input
+    type="date"
+    id="fechaDisp"
+    value={selectedDate}
+    min={new Date().toISOString().split("T")[0]} // 🚫 No permite fechas pasadas
+    onChange={(e) => setSelectedDate(e.target.value)}
+    className="w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 bg-gray-50 hover:bg-white transition"
+  />
+</div>
 
           {/* CARGA */}
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-64 space-y-3">
-              <svg
-                className="animate-spin h-8 w-8 text-green-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                />
-              </svg>
-              <p className="text-gray-500 animate-pulse">
-                Cargando disponibilidad...
-              </p>
-            </div>
-          ) : (
+  <div className="flex flex-col items-center justify-center py-10 space-y-6">
+    <div className="loader-circle"></div>
+    <p className="text-gray-700 font-semibold text-lg tracking-wide animate-pulse">
+    </p>
+  </div>
+) : (
             <>
               {/* CANCHAS */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -218,7 +199,7 @@ const VerDisponibilidadModal = ({ isOpen, onClose }) => {
                     <h3 className="text-lg font-semibold text-gray-800">
                       Cancha 1{" "}
                       <span className="text-sm font-normal text-gray-500">
-                        (Techada)
+                      
                       </span>
                     </h3>
                   </div>
@@ -240,7 +221,7 @@ const VerDisponibilidadModal = ({ isOpen, onClose }) => {
                     <h3 className="text-lg font-semibold text-gray-800">
                       Cancha 2{" "}
                       <span className="text-sm font-normal text-gray-500">
-                        (Semi-techada)
+                     
                       </span>
                     </h3>
                   </div>
