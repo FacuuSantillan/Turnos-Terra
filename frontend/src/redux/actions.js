@@ -9,7 +9,7 @@ export const POST_TURNO = 'POST_TURNO'
 export const POST_TURNO_ERROR = 'POST_TURNO_ERROR'
 export const DELETE_TURNO = "DELETE_TURNO";
 export const DELETE_TURNO_ERROR = "DELETE_TURNO_ERROR";
-
+export const GET_TURNO_ID = "GET_TURNO_ID";
 export const GET_TURNOS_FIJOS = "GET_TURNOS_FIJOS";
 export const GET_TURNOS_FIJOS_LIBERADOS = "GET_TURNOS_FIJOS_LIBERADOS";
 export const POST_TURNO_FIJO_LIBERADO = "POST_TURNO_FIJO_LIBERADO";
@@ -223,6 +223,17 @@ export const deleteTurnoFijo = (id) => {
       console.error("Error al eliminar turno fijo:", errorData);
       dispatch({ type: DELETE_TURNO_FIJO_ERROR, payload: errorData });
       return { success: false, error: errorData };
+    }
+  };
+};
+
+export const getTurnoById = (id) => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.get(`/turno/${id}`);
+      dispatch({ type: GET_TURNO_ID, payload: response.data });
+    } catch (error) {
+      console.error("Error al obtener turno por ID:", error.response?.data);
     }
   };
 };

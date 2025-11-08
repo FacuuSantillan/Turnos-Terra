@@ -12,7 +12,8 @@ import {
   POST_TURNO_FIJO_LIBERADO,
   POST_TURNO_FIJO_LIBERADO_ERROR,
   POST_TURNO_FIJO,
-  POST_TURNO_FIJO_ERROR
+  POST_TURNO_FIJO_ERROR,
+  GET_TURNO_ID,
 } from "./actions";
 
 //---------------------Estados iniciales--------------------------------//
@@ -24,7 +25,9 @@ const initialState = {
   turnosCopy:[],
 
   turnosFijos:[],
-  turnosFijosLiberados: []
+  turnosFijosLiberados: [],
+
+  turnoDetail: {}
 };
 
 function reducer(state = initialState, action) {
@@ -41,6 +44,12 @@ function reducer(state = initialState, action) {
           horarios: action.payload,
           horariosCopy: [...action.payload], 
         };
+        
+         case GET_TURNO_ID:
+      return {
+        ...state,
+        turnoDetail: action.payload,
+      };
 
         case GET_TURNOS:
         if (!action.payload || action.payload.length === 0) {

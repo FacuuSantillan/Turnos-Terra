@@ -25,6 +25,7 @@ const deleteCancha = require('../controller/RoutesDelete/deleteCancha');
 const deleteUsuario = require('../controller/RoutesDelete/deleteUsuario');
 const { obtenerUsuarioPorId } = require('../controller/RoutesGet/getUsuario');
 const { obtenerCanchas } = require('../controller/RoutesGet/getCanchas');
+const {obtenerTurnoPorId} = require('../controller/RoutesGet/getTurnoPorId');
 
 const router = Router();
 
@@ -35,6 +36,7 @@ router.get('/getUsuario/:id', obtenerUsuarioPorId);
 router.get('/getCanchas', obtenerCanchas);
 router.get('/turnos-fijos', obtenerTurnosFijos);
 router.get('/turnos-fijos/liberados', obtenerTurnosFijosLiberados);
+router.get('/turno/:id', obtenerTurnoPorId);
 
 /* -------------------- POST -------------------- */
 router.post('/', crearHorarioAdmin);
