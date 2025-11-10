@@ -21,6 +21,9 @@ export const UPDATE_TURNO_FIJO_ERROR = "UPDATE_TURNO_FIJO_ERROR";
 export const DELETE_TURNO_FIJO = "DELETE_TURNO_FIJO";
 export const DELETE_TURNO_FIJO_ERROR = "DELETE_TURNO_FIJO_ERROR";
 
+// --- AÑADIDO ---
+export const FILTER_TURNOS = 'FILTER_TURNOS';
+
 export const getHorarios = () => {
   return async (dispatch) => {
     
@@ -41,6 +44,16 @@ export const getTurnos = () => {
         type: GET_TURNOS, 
         payload: response.data
     });
+  };
+};
+
+// --- AÑADIDO ---
+// Action creator para los filtros.
+// Recibe un objeto "filtros" (ej. { cancha: '1', fecha: '2025-10-10' })
+export const filterTurnos = (filtros) => {
+  return {
+    type: FILTER_TURNOS,
+    payload: filtros
   };
 };
 
@@ -130,65 +143,63 @@ export const updateTurno = (id, turnoData) => {
 };
 
 export const getTurnosFijos = () => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.get('/turnos-fijos'); 
-      return dispatch({ type: GET_TURNOS_FIJOS, payload: response.data });
-    } catch (error) {
-      console.error("Error al obtener turnos fijos:", error.response?.data);
-    }
-  };
+  return async (dispatch) => {
+    try {
+      const response = await axios.get('/turnos-fijos'); 
+      return dispatch({ type: GET_TURNOS_FIJOS, payload: response.data });
+    } catch (error) {
+      console.error("Error al obtener turnos fijos:", error.response?.data);
+    }
+  };
 };
 
 export const getTurnosFijosLiberados = () => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.get('/turnos-fijos/liberados'); 
-      return dispatch({ type: GET_TURNOS_FIJOS_LIBERADOS, payload: response.data });
-    } catch (error) {
-      console.error("Error al obtener turnos fijos liberados:", error.response?.data);
-    }
-  };
+  return async (dispatch) => {
+    try {
+      const response = await axios.get('/turnos-fijos/liberados'); 
+      return dispatch({ type: GET_TURNOS_FIJOS_LIBERADOS, payload: response.data });
+    } catch (error) {
+      console.error("Error al obtener turnos fijos liberados:", error.response?.data);
+    }
+  };
 };
 
 export const liberarTurnoFijo = (liberacionData) => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.post('/turnos-fijos/liberar', liberacionData);
-      dispatch({ type: POST_TURNO_FIJO_LIBERADO, payload: response.data });
-      return { success: true, data: response.data };
-    } catch (error) {
-      const errorData = error.response?.data || { error: "Error de red" };
-      dispatch({ type: POST_TURNO_FIJO_LIBERADO_ERROR, payload: errorData });
-      return { success: false, error: errorData };
-    }
-  };
+  return async (dispatch) => {
+    try {
+      const response = await axios.post('/turnos-fijos/liberar', liberacionData);
+      dispatch({ type: POST_TURNO_FIJO_LIBERADO, payload: response.data });
+      return { success: true, data: response.data };
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      dispatch({ type: POST_TURNO_FIJO_LIBERADO_ERROR, payload: errorData });
+      return { success: false, error: errorData };
+    }
+  };
 };
 
 export const createTurnoFijo = (turnoFijoData) => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.post('/turnos-fijos/crear', turnoFijoData);
-      const nuevoTurnoFijo = response.data;
+  return async (dispatch) => {
+    try {
+      const response = await axios.post('/turnos-fijos/crear', turnoFijoData);
+      const nuevoTurnoFijo = response.data;
 
-      dispatch({
-        type: POST_TURNO_FIJO,
-        payload: nuevoTurnoFijo
-      });
-      return { success: true, data: nuevoTurnoFijo };
+      dispatch({
+        type: POST_TURNO_FIJO,
+        payload: nuevoTurnoFijo
+      });
+      return { success: true, data: nuevoTurnoFijo };
 
-    } catch (error) {
-      const errorData = error.response?.data || { error: "Error de red" };
-      dispatch({
-        type: POST_TURNO_FIJO_ERROR,
-        payload: errorData
-      });
-      return { success: false, error: errorData };
-    }
-  };
+    } catch (error) {
+      const errorData = error.response?.data || { error: "Error de red" };
+      dispatch({
+        type: POST_TURNO_FIJO_ERROR,
+        payload: errorData
+      });
+      return { success: false, error: errorData };
+    }
+  };
 };
-
-
 
 export const updateTurnoFijo = (id, turnoFijoData) => {
   return async (dispatch) => {

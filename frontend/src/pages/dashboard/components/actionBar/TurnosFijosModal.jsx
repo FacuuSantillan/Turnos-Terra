@@ -12,7 +12,16 @@ import {
   deleteTurnoFijo
 } from '../../../../redux/actions';
 
-// --- Componentes auxiliares ---
+// --- Importaciones de React DatePicker ---
+import DatePicker, { registerLocale } from "react-datepicker";
+import { es } from 'date-fns/locale';
+import "react-datepicker/dist/react-datepicker.css";
+
+// --- Registrar idioma español ---
+registerLocale('es', es);
+
+
+// --- Componentes auxiliares (AlertModal, ConfirmModal) ---
 const AlertModal = ({ title = "Aviso", message, onClose }) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-[60]">
     <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 text-center">
@@ -52,8 +61,10 @@ const ConfirmModal = ({ title = "Confirmar", message, onConfirm, onCancel }) => 
     </div>
   </div>
 );
+// --- Fin Componentes auxiliares ---
 
-// --- Funciones auxiliares ---
+
+// --- Funciones auxiliares (getDiaSemana, diasSemana) ---
 const getDiaSemana = (num) => {
   const dias = ['Inválido', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   return dias[num] || 'Día inválido';
@@ -68,6 +79,8 @@ const diasSemana = [
   { id: 6, nombre: 'Sábado' },
   { id: 7, nombre: 'Domingo' },
 ];
+// --- Fin Funciones auxiliares ---
+
 
 const TurnosFijosModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -81,7 +94,6 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
   const [editingTurno, setEditingTurno] = useState(null);
   const [apiError, setApiError] = useState(null);
 
-  // NUEVOS estados para los modales
   const [modalInfo, setModalInfo] = useState(null);
   const [confirmInfo, setConfirmInfo] = useState(null);
 
@@ -94,19 +106,78 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
     horas: [],
   });
 
+  // --- Funciones de reseteo y limpieza ---
+  const resetFormulario = () => {
+    setNewAbonoData({
+      nombre: '',
+      apellido: '',
+      telefono: '',
+      cancha: '',
+      dia_semana: '',
+      horas: [],
+    });
+    setApiError(null);
+  };
+  
+  const resetEstadoModal = () => {
+    dispatch(getTurnosFijos());
+    dispatch(getTurnosFijosLiberados());
+    dispatch(getHorarios());
+    setApiError(null);
+    setEditingTurno(null);
+    setSelectedTab(0);
+    resetFormulario();
+    setFechaALiberar('');
+    setTurnoFijoId('');
+  };
+
+  const isLiberado = (id, fecha) => {
+    if (!id || !fecha) return false;
+    return liberados.some(lib =>
+      lib.turno_fijo_id === id && lib.fecha === fecha
+    );
+  };
+
   useEffect(() => {
     if (isOpen) {
-      dispatch(getTurnosFijos());
-      dispatch(getTurnosFijosLiberados());
-      dispatch(getHorarios());
-      setApiError(null);
-      setEditingTurno(null);
-      setSelectedTab(0);
-      setNewAbonoData({ nombre: '', apellido: '', telefono: '', cancha: '', dia_semana: '', horas: [] });
-      setFechaALiberar('');
-      setTurnoFijoId('');
+      resetEstadoModal();
     }
   }, [isOpen, dispatch]);
+
+
+  // --- Lógica para el DatePicker ---
+  const selectedTurnoFijo = useMemo(() => {
+    if (!turnoFijoId) return null;
+    return turnosFijos.find(tf => tf.id === Number(turnoFijoId));
+  }, [turnoFijoId, turnosFijos]);
+
+  const isDayEnabled = (date) => {
+    if (!selectedTurnoFijo) {
+      return false;
+    }
+    const jsDay = date.getDay();
+    const diaSeleccionadoApp = (jsDay === 0) ? 7 : jsDay;
+    const diaTurnoApp = selectedTurnoFijo.dia_semana;
+    return diaSeleccionadoApp === diaTurnoApp;
+  };
+
+  const selectedDateObject = useMemo(() => {
+    if (!fechaALiberar) return null;
+    const [year, month, day] = fechaALiberar.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }, [fechaALiberar]);
+
+  const handleDateChange = (date) => {
+    if (date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      setFechaALiberar(`${yyyy}-${mm}-${dd}`);
+    } else {
+      setFechaALiberar('');
+    }
+  };
+
 
   const handleLiberar = async () => {
     if (!turnoFijoId || !fechaALiberar) {
@@ -119,6 +190,7 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
     }));
     if (result.success) {
       setModalInfo({ title: "Éxito", message: "Turno liberado con éxito." });
+      dispatch(getTurnosFijosLiberados()); // <-- ¡ACTUALIZACIÓN AÑADIDA! ---
       setTurnoFijoId('');
       setFechaALiberar('');
     } else {
@@ -134,6 +206,7 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
         const result = await dispatch(deleteTurnoFijo(id));
         if (result.success) {
           setModalInfo({ title: "Eliminado", message: "Abono eliminado con éxito." });
+          dispatch(getTurnosFijos()); // <-- ¡ACTUALIZACIÓN AÑADIDA! ---
         } else {
           setModalInfo({ title: "Error", message: "No se pudo eliminar el abono." });
         }
@@ -143,18 +216,46 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
     });
   };
 
-    const handleEditClick = (turnoFijo) => {
+  // --- Lógica de Edición y Navegación de Pestañas ---
+
+  const handleEditClick = (turnoFijo) => {
     setApiError(null);
     setEditingTurno(turnoFijo);
-    setSelectedTab(1);
+
+    setNewAbonoData({
+      nombre: turnoFijo.Usuario?.nombre ?? '',
+      apellido: turnoFijo.Usuario?.apellido ?? '',
+      telefono: turnoFijo.Usuario?.telefono ?? '',
+      cancha: String(turnoFijo.cancha_id),
+      dia_semana: String(turnoFijo.dia_semana),
+      horas: turnoFijo.Horarios?.map(h => h.id) ?? []
+    });
+    
+    setSelectedTab(1); // Cambiamos a la pestaña del formulario
   };
 
+  /**
+   * Maneja el cambio de pestañas.
+   * Si el usuario vuelve a la pestaña 0 (Gestionar),
+   * reseteamos el estado de edición y limpiamos el formulario.
+   */
+  const handleTabChange = (index) => {
+    if (index === 0) {
+      setEditingTurno(null);
+      resetFormulario();
+    }
+    setSelectedTab(index);
+  };
+  
+  /**
+   * El botón "Cancelar" en el formulario de edición simplemente
+   * nos devuelve a la pestaña 0, ejecutando la lógica de reseteo.
+   */
   const handleCancelEdit = () => {
-    setApiError(null);
-    setEditingTurno(null);
-    setSelectedTab(0);
+    handleTabChange(0); // Vuelve a la pestaña "Gestionar" y resetea
   };
 
+  // --- Lógica del Formulario ---
   const handleNewAbonoChange = (e) => {
     const { name, value } = e.target;
     setApiError(null);
@@ -194,8 +295,10 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
 
     if (result.success) {
       setModalInfo({ title: "Éxito", message: `Abono ${editingTurno ? 'modificado' : 'creado'} con éxito.` });
+      dispatch(getTurnosFijos()); // <-- ¡ACTUALIZACIÓN AÑADIDA! ---
       setEditingTurno(null);
-      setSelectedTab(0);
+      resetFormulario();
+      setSelectedTab(0); // Volvemos a la pestaña de gestión
     } else {
       setApiError(result.error?.error || "Error al guardar el abono.");
     }
@@ -206,7 +309,7 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
     const diaSemana = Number(newAbonoData.dia_semana);
     if (!canchaId || !diaSemana || !Array.isArray(horarios)) return [];
     const horariosReservadosIds = turnosFijos
-      .filter(tf => tf.id !== editingTurno?.id)
+      .filter(tf => tf.id !== editingTurno?.id) // Permite editar sin autobloquearse
       .filter(tf => tf.cancha_id === canchaId && tf.dia_semana === diaSemana)
       .flatMap(tf => tf.Horarios?.map(h => h.id) || []);
     return horarios
@@ -215,246 +318,260 @@ const TurnosFijosModal = ({ isOpen, onClose }) => {
       .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
   }, [horarios, turnosFijos, newAbonoData.cancha, newAbonoData.dia_semana, editingTurno]);
 
+
   if (!isOpen) return null;
 
   return (
     <>
-      {/* MODALES DE ALERTA Y CONFIRMACIÓN */}
       {modalInfo && <AlertModal {...modalInfo} onClose={() => setModalInfo(null)} />}
       {confirmInfo && <ConfirmModal {...confirmInfo} />}
 
-      {/* CONTENIDO PRINCIPAL */}
       <div className="backdrop-blur-sm fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4" onClick={onClose}>
         <div
           className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col border border-gray-200"
           onClick={(e) => e.stopPropagation()}
         >
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-2xl">
-          <h2 className="text-2xl font-semibold text-gray-800">Gestión de Turnos Fijos</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
+          <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+            <h2 className="text-2xl font-semibold text-gray-800">Gestión de Turnos Fijos</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+          </div>
 
-        <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-          <Tab.List className="flex space-x-1 bg-gray-100 p-1 border-b border-gray-200">
-            {['Gestionar Abonos', editingTurno ? 'Editar Abono' : 'Crear Abono'].map((tab, i) => (
-              <Tab
-                key={i}
-                className={({ selected }) =>
-                  `w-full rounded-lg py-2.5 text-sm font-medium transition-all duration-200 ${
-                    selected
-                      ? 'bg-white text-green-700 shadow-inner'
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-green-600'
-                  }`
-                }
-              >
-                {tab}
-              </Tab>
-            ))}
-          </Tab.List>
+          <Tab.Group selectedIndex={selectedTab} onChange={handleTabChange}>
 
-          <Tab.Panels className="overflow-y-auto">
-            <Tab.Panel className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">Liberar Turno</h3>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Abono</label>
-                  <select
-                    value={turnoFijoId}
-                    onChange={(e) => setTurnoFijoId(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-green-500"
-                  >
-                    <option value="">Seleccionar...</option>
-                    {turnosFijos.map(tf => (
-                      <option key={tf.id} value={tf.id}>
-                        {getDiaSemana(tf.dia_semana)} {tf.hora_inicio} ({tf.Usuario?.nombre}) - {tf.Cancha?.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                  <input
-                    type="date"
-                    value={fechaALiberar}
-                    onChange={(e) => setFechaALiberar(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
+            <Tab.List className="flex space-x-1 bg-gray-100 p-1 border-b border-gray-200">
+              {['Gestionar Abonos', editingTurno ? 'Editar Abono' : 'Crear Abono'].map((tab, i) => (
+                <Tab
+                  key={i}
+                  className={({ selected }) =>
+                    `w-full rounded-lg py-2.5 text-sm font-medium transition-all duration-200 ${
+                      selected
+                        ? 'bg-white text-green-700 shadow-inner'
+                        : 'text-gray-500 hover:bg-gray-50 hover:text-green-600'
+                    }`
+                  }
+                >
+                  {tab}
+                </Tab>
+              ))}
+            </Tab.List>
 
-                {turnoFijoId && fechaALiberar && isLiberado(Number(turnoFijoId), fechaALiberar) ? (
-                  <div className="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-lg">
-                    <CheckCircleIcon className="h-5 w-5" />
-                    <span className="text-sm font-medium">Este turno ya está liberado.</span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleLiberar}
-                    disabled={!turnoFijoId || !fechaALiberar}
-                    className="w-full px-5 py-2.5 rounded-lg text-white font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 transition-colors"
-                  >
-                    Liberar Horario
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800">Abonos Activos</h3>
-                <div className="max-h-80 overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  {turnosFijos.length === 0 ? (
-                    <p className="text-sm text-gray-500 italic">No hay abonos activos.</p>
-                  ) : (
-                    turnosFijos.map(tf => (
-                      <div key={tf.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                        <p className="font-semibold text-gray-900 capitalize">
-                          {getDiaSemana(tf.dia_semana)} {tf.hora_inicio} - {tf.hora_fin}
-                        </p>
-                        <p className="text-sm text-gray-600 capitalize">{tf.Usuario?.nombre} {tf.Usuario?.apellido}</p>
-                        <p className="text-sm text-gray-600 capitalize">{tf.Cancha?.nombre}</p>
-                        <div className="flex items-center gap-4 mt-2 pt-2 border-t border-gray-200">
-                          <button
-                            onClick={() => handleEditClick(tf)}
-                            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDelete(tf.id, tf.Usuario?.nombre)}
-                            className="flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                            Eliminar
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </Tab.Panel>
-
-            <Tab.Panel className="p-6">
-              <form onSubmit={handleNewAbonoSubmit} className="space-y-5">
-                {apiError && (
-                  <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-3 rounded-lg flex items-start gap-2">
-                    <ExclamationTriangleIcon className="h-5 w-5 mt-0.5 text-red-400" />
-                    <div>
-                      <p className="font-semibold">Error al guardar</p>
-                      <p className="text-sm">{apiError}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {['nombre', 'apellido', 'telefono'].map((campo) => (
-                    <div key={campo}>
-                      <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">{campo}</label>
-                      <input
-                        type={campo === 'telefono' ? 'tel' : 'text'}
-                        name={campo}
-                        value={newAbonoData[campo]}
-                        onChange={handleNewAbonoChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-green-500"
-                        required
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Tab.Panels className="overflow-y-auto">
+              <Tab.Panel className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <h3 className=" text-lg font-semibold text-gray-800">Liberar Turno</h3>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cancha</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Abono</label>
                     <select
-                      name="cancha"
-                      value={newAbonoData.cancha}
-                      onChange={handleNewAbonoChange}
+                      value={turnoFijoId}
+                      onChange={(e) => {
+                        setTurnoFijoId(e.target.value);
+                        setFechaALiberar('');
+                      }}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-green-500"
-                      required
                     >
-                      <option value="">Seleccionar cancha...</option>
-                      <option value="1">Cancha 1</option>
-                      <option value="2">Cancha 2</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Día</label>
-                    <select
-                      name="dia_semana"
-                      value={newAbonoData.dia_semana}
-                      onChange={handleNewAbonoChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-green-500"
-                      required
-                    >
-                      <option value="">Seleccionar día...</option>
-                      {diasSemana.map(dia => (
-                        <option key={dia.id} value={dia.id}>{dia.nombre}</option>
+                      <option value="">Seleccionar...</option>
+                      {turnosFijos.map(tf => (
+                        <option key={tf.id} value={tf.id}>
+                          {getDiaSemana(tf.dia_semana)} {tf.hora_inicio} ({tf.Usuario?.nombre}) - {tf.Cancha?.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+
+                    <DatePicker
+                      selected={selectedDateObject}
+                      onChange={handleDateChange}
+                      filterDate={isDayEnabled}
+                      minDate={new Date()}
+                      disabled={!turnoFijoId}
+                      locale="es"
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText={turnoFijoId ? "Selecciona una fecha..." : "Selecciona un abono primero"}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-green-500 disabled:bg-gray-100"
+                      onKeyDown={(e) => e.preventDefault()}
+                    />
+
+                  </div>
+
+                  {turnoFijoId && fechaALiberar && isLiberado(Number(turnoFijoId), fechaALiberar) ? (
+                    <div className="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-lg">
+                      <CheckCircleIcon className="h-5 w-5" />
+                      <span className="text-sm font-medium">Este turno ya está liberado.</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleLiberar}
+                      disabled={!turnoFijoId || !fechaALiberar}
+                      className="w-full mt-5 px-5 py-2.5 rounded-lg text-white font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+                    >
+                      Liberar Horario
+                    </button>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Horarios</label>
-                  <div className="w-full max-h-48 overflow-y-auto border border-gray-200 rounded-2xl p-3 scrollbar-thin">
-                    {!newAbonoData.cancha || !newAbonoData.dia_semana ? (
-                      <p className="text-gray-500 text-center py-5 text-sm">Selecciona una cancha y un día.</p>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-gray-800">Abonos Activos</h3>
+                  <div className="max-h-80 overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    {turnosFijos.length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">No hay abonos activos.</p>
                     ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        {horariosFiltrados.map((h) => (
-                          <label
-                            key={h.id}
-                            className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all ${
-                              h.isReservado
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed line-through'
-                                : newAbonoData.horas.includes(h.id)
-                                ? 'bg-green-100 border-green-400 text-green-700'
-                                : 'bg-white hover:bg-gray-50 cursor-pointer'
-                            }`}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="checkbox"
-                                value={h.id}
-                                checked={newAbonoData.horas.includes(h.id)}
-                                onChange={() => handleNewAbonoHorasChange(h.id)}
-                                disabled={h.isReservado}
-                                className="rounded text-green-600 focus:ring-green-500 disabled:cursor-not-allowed"
-                              />
-                              <span className="text-sm font-medium">{h.hora_inicio}</span>
-                            </div>
-                            {h.isReservado && <span className="text-xs font-medium">Ocupado</span>}
-                          </label>
-                        ))}
-                      </div>
+                      turnosFijos.map(tf => (
+                        <div key={tf.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                          <p className="font-semibold text-gray-900 capitalize">
+                            {getDiaSemana(tf.dia_semana)} {tf.hora_inicio} a {tf.hora_fin}
+                          </p>
+                          <p className="text-sm text-gray-600 capitalize">{tf.Usuario?.nombre} {tf.Usuario?.apellido}</p>
+                          <p className="text-sm text-gray-600 capitalize">{tf.Cancha?.nombre}</p>
+                          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-gray-200">
+                            <button
+                              onClick={() => handleEditClick(tf)}
+                              className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => handleDelete(tf.id, tf.Usuario?.nombre)}
+                              className="flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
+              </Tab.Panel>
 
-                <div className="flex justify-end gap-3 pt-3 border-t border-gray-200">
-                  {editingTurno && (
+              <Tab.Panel className="p-6">
+                <form onSubmit={handleNewAbonoSubmit} className="space-y-5">
+                  {apiError && (
+                    <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-3 rounded-lg flex items-start gap-2">
+                      <ExclamationTriangleIcon className="h-5 w-5 mt-0.5 text-red-400" />
+                      <div>
+                        <p className="font-semibold">Error al guardar</p>
+                        <p className="text-sm">{apiError}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {['nombre', 'apellido', 'telefono'].map((campo) => (
+                      <div key={campo}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">{campo}</label>
+                        <input
+                          type={campo === 'telefono' ? 'tel' : 'text'}
+                          name={campo}
+                          value={newAbonoData[campo]}
+                          onChange={handleNewAbonoChange}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-green-500"
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Cancha</label>
+                      <select
+                        name="cancha"
+                        value={newAbonoData.cancha}
+                        onChange={handleNewAbonoChange}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-green-500"
+                        required
+                      >
+                        <option value="">Seleccionar cancha...</option>
+                        <option value="1">Cancha 1</option>
+                        <option value="2">Cancha 2</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Día</label>
+                      <select
+                        name="dia_semana"
+                        value={newAbonoData.dia_semana}
+                        onChange={handleNewAbonoChange}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-green-500"
+                        required
+                      >
+                        <option value="">Seleccionar día...</option>
+                        {diasSemana.map(dia => (
+                          <option key={dia.id} value={dia.id}>{dia.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Horarios</label>
+                    <div className="w-full max-h-48 overflow-y-auto border border-gray-200 rounded-2xl p-3 scrollbar-thin">
+                      {!newAbonoData.cancha || !newAbonoData.dia_semana ? (
+                        <p className="text-gray-500 text-center py-5 text-sm">Selecciona una cancha y un día.</p>
+                      ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                          {horariosFiltrados.length === 0 ? (
+                             <p className="text-gray-500 text-center py-5 text-sm col-span-full">No hay horarios disponibles para ese día.</p>
+                          ) : (
+                            horariosFiltrados.map((h) => (
+                              <label
+                                key={h.id}
+                                className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all ${
+                                  h.isReservado
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed line-through'
+                                    : newAbonoData.horas.includes(h.id)
+                                    ? 'bg-green-100 border-green-400 text-green-700 font-medium'
+                                    : 'bg-white hover:bg-gray-50 cursor-pointer'
+                                }`}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    value={h.id}
+                                    checked={newAbonoData.horas.includes(h.id)}
+                                    onChange={() => handleNewAbonoHorasChange(h.id)}
+                                    disabled={h.isReservado}
+                                    className="rounded text-green-600 focus:ring-green-500 disabled:cursor-not-allowed"
+                                  />
+                                  <span className="text-sm">{h.hora_inicio}</span>
+                                </div>
+                                {h.isReservado && <span className="text-xs font-medium">Ocupado</span>}
+                              </label>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-3 border-t border-gray-200">
                     <button
                       type="button"
                       onClick={handleCancelEdit}
                       className="px-4 py-2.5 rounded-lg font-medium bg-gray-100 hover:bg-gray-200 transition-colors"
                     >
-                      Cancelar
+                      {editingTurno ? 'Cancelar Edición' : 'Volver'}
                     </button>
-                  )}
-                  <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-colors"
-                  >
-                    {editingTurno ? 'Guardar Cambios' : 'Crear Abono'}
-                  </button>
-                </div>
-              </form>
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
+                    <button
+                      type="submit"
+                      disabled={newAbonoData.horas.length === 0} // Deshabilitar si no hay horas
+                      className="px-5 py-2.5 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                    >
+                      {editingTurno ? 'Guardar Cambios' : 'Crear Abono'}
+                    </button>
+                  </div>
+                </form>
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
+        </div>
       </div>
-    </div>
     </>
   );
 };
