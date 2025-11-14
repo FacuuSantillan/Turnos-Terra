@@ -1,2 +1,4 @@
-/node_modules
-/serviceAccountKey.json
+backend/src/serviceAccountKey.json
+
+node_modules
+.env
