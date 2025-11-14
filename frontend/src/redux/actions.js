@@ -20,6 +20,8 @@ export const UPDATE_TURNO_FIJO = "UPDATE_TURNO_FIJO";
 export const UPDATE_TURNO_FIJO_ERROR = "UPDATE_TURNO_FIJO_ERROR";
 export const DELETE_TURNO_FIJO = "DELETE_TURNO_FIJO";
 export const DELETE_TURNO_FIJO_ERROR = "DELETE_TURNO_FIJO_ERROR";
+export const SET_SELECTED_DATE = 'SET_SELECTED_DATE';
+export const SET_HORARIOS_SELECCIONADOS = 'SET_HORARIOS_SELECCIONADOS';
 
 // --- AÑADIDO ---
 export const FILTER_TURNOS = 'FILTER_TURNOS';
@@ -35,6 +37,11 @@ export const getHorarios = () => {
     });
   };
 };
+
+export const setSelectedDate = (fecha) => ({
+  type: SET_SELECTED_DATE,
+  payload: fecha 
+});
 
 export const getTurnos = () => {
   return async (dispatch) => {
@@ -75,6 +82,7 @@ export const updateHorarioActivo = (id, nuevoEstado) => {
 };
 
 export const postTurno = (turnoData) => {
+  console.log(turnoData)
   return async (dispatch) => {
     try {
       const response = await axios.post('/crearTurno', turnoData);
@@ -237,6 +245,11 @@ export const deleteTurnoFijo = (id) => {
     }
   };
 };
+
+export const setHorariosSeleccionados = (canchaId, horas) => ({
+  type: SET_HORARIOS_SELECCIONADOS,
+  payload: { canchaId, horas }
+});
 
 export const getTurnoById = (id) => {
   return async (dispatch) => {

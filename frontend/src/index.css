@@ -68,3 +68,11 @@ h1 {
   0% { box-shadow: 0 0 5px #bef264, 0 0 10px #a3e635; }
   100% { box-shadow: 0 0 20px #bef264, 0 0 35px #a3e635; }
 }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}

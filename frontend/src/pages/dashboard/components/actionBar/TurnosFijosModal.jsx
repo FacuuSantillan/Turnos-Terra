@@ -25,7 +25,7 @@ registerLocale('es', es);
 const AlertModal = ({ title = "Aviso", message, onClose }) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-[60]">
     <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 text-center">
-      <ExclamationTriangleIcon className="h-10 w-10 text-yellow-500 mx-auto mb-3" />
+      <CheckCircleIcon className="h-10 w-10 text-green-500 mx-auto mb-3" />
       <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
       <p className="text-gray-600 mb-5">{message}</p>
       <button

@@ -28,7 +28,8 @@ function BarraNavegacion() {
         {/* Menú lateral */}
         <ul className={`${style.menu} ${menuAbierto ? style.menuActivo : ""}`}>
     
-          <li><a href="/admin" onClick={() => setMenuAbierto(false)}>Dias y Horarios</a></li>
+          <li><a href="/login" onClick={() => setMenuAbierto(false)}>Login</a></li>
+          <li><a href="#DiasyHorarios" onClick={() => setMenuAbierto(false)}>Dias y Horarios</a></li>
           <li><a href="#servicios" onClick={() => setMenuAbierto(false)}>Datos del turno</a></li>
           <li><a href="#proyectos" onClick={() => setMenuAbierto(false)}>Ubicación</a></li>
           <li><a href="#contacto" onClick={() => setMenuAbierto(false)}>Contacto</a></li>

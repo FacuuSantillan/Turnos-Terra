@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import Home from "./pages/Home/Home";
 import Dashboard from "./pages/dashboard/dashboard";
+import Login from "./components/login/login";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -20,7 +21,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/091a26afbfcaba13f5ac05e6e697d0b58b25bc5ba5ffb931752739a653fc8bef" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </div>
   );

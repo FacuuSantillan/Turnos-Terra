@@ -1,3 +1,10 @@
+const formatDateISO = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 //---------------------importacion de los types--------------------------------//
 import {
   GET_HORARIOS,
@@ -17,12 +24,19 @@ import {
   DELETE_TURNO_FIJO_ERROR, // --- AÑADIDO ---
   GET_TURNO_ID,
   FILTER_TURNOS,
+  SET_SELECTED_DATE,
+  SET_HORARIOS_SELECCIONADOS
 } from "./actions";
 
 //---------------------Estados iniciales--------------------------------//
 const initialState = {
   horarios: [],
   horariosCopy: [], 
+
+   horariosSeleccionados: {
+    1: [], // cancha 1
+    2: []  // cancha 2
+  },
   
   turnos:[],
   turnosCopy:[],
@@ -31,11 +45,30 @@ const initialState = {
   turnosFijosCopy: [], // <-- AÑADIDO: Copia maestra para filtros
   turnosFijosLiberados: [],
 
-  turnoDetail: {}
+  turnoDetail: {},
+
+  selectedDate: formatDateISO(new Date())
 };
 
 function reducer(state = initialState, action) {
   switch (action.type) {
+
+    case SET_HORARIOS_SELECCIONADOS:
+      return {
+        ...state,
+        horariosSeleccionados: {
+          ...state.horariosSeleccionados,
+          [action.payload.canchaId]: action.payload.horas
+        }
+      };
+
+    case SET_SELECTED_DATE:
+      return {
+        ...state,
+        selectedDate: action.payload,
+      };
+    // -----------------------------Casos de Horarios y Turnos--------------------------------//
+
     case GET_HORARIOS:
       if (!action.payload || action.payload.length === 0) {
         return {

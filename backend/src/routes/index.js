@@ -27,6 +27,8 @@ const { obtenerUsuarioPorId } = require('../controller/RoutesGet/getUsuario');
 const { obtenerCanchas } = require('../controller/RoutesGet/getCanchas');
 const {obtenerTurnoPorId} = require('../controller/RoutesGet/getTurnoPorId');
 
+const authRoutes = require('./authRoutes.js');
+
 const router = Router();
 
 /* -------------------- GET -------------------- */
@@ -56,5 +58,7 @@ router.delete('/eliminarTurno/:id', deleteTurno);
 router.delete('/eliminarCancha/:id', deleteCancha);
 router.delete('/eliminarUsuario/:id', deleteUsuario);
 router.delete('/turnos-fijos/:id', eliminarTurnoFijo);
+
+router.use("/auth", authRoutes);
 
 module.exports = router;

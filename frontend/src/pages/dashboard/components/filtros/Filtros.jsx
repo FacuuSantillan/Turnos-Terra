@@ -134,7 +134,7 @@ const FiltroTurnos = () => {
 
         <div className="text-sm text-gray-600 text-right leading-tight">
           <p>
-            Turnos regulares: <strong className="text-green-700">{turnos.length}</strong> / {turnosCopy.length}
+            Turnos: <strong className="text-green-700">{turnos.length}</strong> / {turnosCopy.length}
           </p>
           <p>
             Turnos fijos: <strong className="text-green-700">{turnosFijos.length}</strong> / {turnosFijosCopy.length}
