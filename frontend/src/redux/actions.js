@@ -38,10 +38,12 @@ export const getHorarios = () => {
   };
 };
 
-export const setSelectedDate = (fecha) => ({
-  type: SET_SELECTED_DATE,
-  payload: fecha 
-});
+export const setSelectedDate = (fecha) => {
+  return {
+    type: SET_SELECTED_DATE,
+    payload: fecha
+  };
+};
 
 export const getTurnos = () => {
   return async (dispatch) => {

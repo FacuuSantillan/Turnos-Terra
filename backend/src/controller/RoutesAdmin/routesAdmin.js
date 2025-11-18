@@ -1,6 +1,5 @@
 const { Horario, Turno, Usuario, Cancha, Turnos } = require('../../db');
 
-// Crear un nuevo horario
 const crearHorarioAdmin = async (req, res) => {
   try {
     const { hora_inicio, hora_fin } = req.body;
@@ -21,7 +20,6 @@ const crearHorarioAdmin = async (req, res) => {
   }
 };
 
-// Obtener todos los horarios
 const obtenerHorariosAdmin = async (req, res) => {
   try {
     const horarios = await Horario.findAll({
@@ -34,7 +32,6 @@ const obtenerHorariosAdmin = async (req, res) => {
   }
 };
 
-// Modificar un horario (ej. cambiar hora_inicio o fin)
 const modificarHorarioAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -57,7 +54,6 @@ const modificarHorarioAdmin = async (req, res) => {
   }
 };
 
-// Eliminar un horario
 const eliminarHorarioAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,7 +70,6 @@ const eliminarHorarioAdmin = async (req, res) => {
   }
 };
 
-// Activar o desactivar un horario
 const cambiarEstadoHorarioAdmin = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,13 +1,15 @@
 // Cancha.jsx
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getHorarios,
   getTurnos,
   getTurnosFijos,
   getTurnosFijosLiberados,
-  setHorariosSeleccionados
+  setSelectedDate,
+  setHorariosSeleccionados,
 } from "../../redux/actions";
+
 import style from "./turnos.module.css";
 import iconoCancha from "../../assets/iconoCancha.png";
 import "boxicons";
@@ -21,6 +23,7 @@ const formatDateISO = (date) => {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 };
+
 const obtenerDiaSemana = (fecha) => {
   const day = new Date(`${fecha}T00:00:00`).getUTCDay();
   return day === 0 ? 7 : day; // Domingo = 7
@@ -29,39 +32,44 @@ const obtenerDiaSemana = (fecha) => {
 // ---------- Componente principal ----------
 function Cancha({ titulo }) {
   const dispatch = useDispatch();
-  
+
   const horarios = useSelector((state) => state.horariosCopy || []);
   const turnos = useSelector((state) => state.turnos || []);
   const turnosFijos = useSelector((state) => state.turnosFijos || []);
   const liberados = useSelector((state) => state.turnosFijosLiberados || []);
-  
-  const [diaSeleccionado, setDiaSeleccionado] = useState(
-    formatDateISO(new Date())
-  );
+
+  // AHORA LA FECHA VIENE DE REDUX
+  const selectedDate = useSelector((state) => state.selectedDate);
+
+  // HORAS que selecciona el usuario
   const [horasSeleccionadas, setHorasSeleccionadas] = useState([]);
-  console.log(horasSeleccionadas)
 
-  console.log(horarios);
-
-  // Detectar número de cancha
+  // Identificar cancha
   const canchaId = useMemo(() => {
     if (titulo.includes("1")) return 1;
     if (titulo.includes("2")) return 2;
     return null;
   }, [titulo]);
 
+  // Cargar datos iniciales
   useEffect(() => {
     dispatch(getHorarios());
     dispatch(getTurnos());
     dispatch(getTurnosFijos());
     dispatch(getTurnosFijosLiberados());
+
+    // Si Redux no tiene fecha aún, setear HOY
+    if (!selectedDate) {
+      dispatch(setSelectedDate(formatDateISO(new Date())));
+    }
   }, [dispatch]);
 
-  // Días dinámicos
+  // Generar los próximos 7 días
   const dias = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
       const fecha = new Date();
       fecha.setDate(fecha.getDate() + i);
+
       return {
         nombre: fecha
           .toLocaleDateString("es-ES", { weekday: "short" })
@@ -75,23 +83,25 @@ function Cancha({ titulo }) {
     });
   }, []);
 
-  // -------------------- LÓGICA PRINCIPAL -------------------- //
+  // Lógica principal de horarios disponibles
   const horariosDisponibles = useMemo(() => {
-    if (!Array.isArray(horarios) || !canchaId || !diaSeleccionado) return [];
+    if (!Array.isArray(horarios) || !canchaId || !selectedDate) return [];
 
-    const diaSemanaNum = obtenerDiaSemana(diaSeleccionado);
+    const diaSemanaNum = obtenerDiaSemana(selectedDate);
 
     const esDisponible = (horario) => {
       if (!horario.activo) return false;
 
+      // Turnos ya reservados
       const reservado = turnos.some(
         (t) =>
-          t.fecha.startsWith(diaSeleccionado) &&
+          t.fecha.startsWith(selectedDate) &&
           t.cancha_id === canchaId &&
           t.Horarios?.some((h) => h.id === horario.id)
       );
       if (reservado) return false;
 
+      // Turno fijo
       const turnoFijo = turnosFijos.find(
         (tf) =>
           tf.cancha_id === canchaId &&
@@ -102,12 +112,12 @@ function Cancha({ titulo }) {
       if (turnoFijo) {
         const estaLiberado = liberados.some(
           (l) =>
-            l.turno_fijo_id === turnoFijo.id && l.fecha === diaSeleccionado
+            l.turno_fijo_id === turnoFijo.id && l.fecha === selectedDate
         );
-        return estaLiberado; // solo disponible si está liberado
+        return estaLiberado;
       }
 
-      return true; // disponible normal
+      return true;
     };
 
     return horarios
@@ -117,17 +127,9 @@ function Cancha({ titulo }) {
         hora: h.hora_inicio,
       }))
       .sort((a, b) => a.hora.localeCompare(b.hora));
-  }, [
-    horarios,
-    turnos,
-    turnosFijos,
-    liberados,
-    canchaId,
-    diaSeleccionado,
-  ]);
+  }, [horarios, turnos, turnosFijos, liberados, canchaId, selectedDate]);
 
-  // -----------------------------------------------------------
-
+  // seleccionar/deseleccionar horarios
   const toggleHora = (id) => {
     setHorasSeleccionadas((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -136,6 +138,7 @@ function Cancha({ titulo }) {
 
   return (
     <div href="#DiasyHorarios" className={style.canchaContainer}>
+
       {/* Título */}
       <div className={style.tituloCancha}>
         <box-icon name="chevron-left" size="md"></box-icon>
@@ -152,12 +155,10 @@ function Cancha({ titulo }) {
             <SwiperSlide key={i}>
               <button
                 className={`${style.diaBoton} ${
-                  diaSeleccionado === d.fechaCompleta
-                    ? style.diaSeleccionado
-                    : ""
+                  selectedDate === d.fechaCompleta ? style.diaSeleccionado : ""
                 }`}
                 onClick={() => {
-                  setDiaSeleccionado(d.fechaCompleta);
+                  dispatch(setSelectedDate(d.fechaCompleta));
                   setHorasSeleccionadas([]);
                 }}
               >
@@ -183,7 +184,7 @@ function Cancha({ titulo }) {
                   ? style.horaSeleccionada
                   : ""
               }`}
-              onClick={() => toggleHora(h.id)} // ← guardar ID
+              onClick={() => toggleHora(h.id)}
             >
               {h.hora}
             </button>
@@ -194,8 +195,7 @@ function Cancha({ titulo }) {
       </div>
 
       <b className={style.expliacionHorarios}>
-        *Seleccione la cantidad de horas. Si selecciona solo 15:00, el turno
-        será de 15:00 a 16:00 hs.
+        *Seleccione la cantidad de horas. Si selecciona solo 15:00, el turno será de 15:00 a 16:00 hs.
       </b>
 
       {/* Confirmar */}

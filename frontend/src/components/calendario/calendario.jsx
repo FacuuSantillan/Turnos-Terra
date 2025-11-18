@@ -1,49 +1,23 @@
-// Importa useEffect y la acción filterTurnos
 import React, { useEffect } from 'react'; 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { useDispatch, useSelector } from 'react-redux';
-// Ajusta la ruta para importar AMBAS acciones
 import { setSelectedDate, filterTurnos } from '../../redux/actions'; 
-
-// ... (tus funciones helper como formatDateISO y la generación de 'dias' no cambian)
-// ...
 
 const DiasCalendario = () => {
   const dispatch = useDispatch();
   const diaSeleccionado = useSelector((state) => state.selectedDate);
 
-  // --- 🚀 AÑADIDO: El "Efecto Secundario" ---
-  // Este hook se ejecutará cada vez que 'diaSeleccionado' o 'dispatch' cambien.
   useEffect(() => {
-    // Nos aseguramos de que haya una fecha seleccionada
     if (diaSeleccionado) {
-      
-      // 1. Despachamos la acción de filtrado
-      //    Tu reducer (que ya está listo) recibirá esta acción
-      //    y filtrará las listas 'turnos' y 'turnosFijos'.
       dispatch(filterTurnos({ fecha: diaSeleccionado }));
-    
-      // 2. (Opcional) Si también quieres filtrar por cancha, 
-      //    necesitarías el ID de la cancha aquí. Por ahora,
-      //    solo filtramos por fecha.
-      // dispatch(filterTurnos({ 
-      //   fecha: diaSeleccionado, 
-      //   cancha: idDeLaCanchaSeleccionada 
-      // }));
     }
-  }, [diaSeleccionado, dispatch]); // <-- Dependencias del Effect
-
+  }, [diaSeleccionado, dispatch]); 
   const handleSelectDia = (fechaString) => {
-    // Esto sigue igual: actualiza el estado 'selectedDate' en Redux
     dispatch(setSelectedDate(fechaString));
     
-    // ¡Y eso es todo! Al cambiar 'selectedDate', el useEffect
-    // de arriba se disparará automáticamente y llamará a filterTurnos.
   };
 
-  // --- Tu JSX (Swiper, etc.) no necesita cambios ---
-  // Se queda exactamente como lo tienes.
   return (
     <div className="w-full text-center">
       <Swiper

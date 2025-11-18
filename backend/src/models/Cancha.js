@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true, //"Cancha 1" o "Cancha 2"
+      unique: true, 
     },
     activa: {
       type: DataTypes.BOOLEAN,

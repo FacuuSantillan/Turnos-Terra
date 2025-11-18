@@ -23,11 +23,9 @@ const putTurno = async (req, res) => {
     const inicio = horaInicio || hora_inicio;
     const fin = horaFin || hora_fin;
 
-    // 1️⃣ Buscar turno existente
     const turno = await Turno.findByPk(id, { include: Horario });
     if (!turno) return res.status(404).json({ error: 'Turno no encontrado.' });
 
-    // 2️⃣ Actualizar datos del usuario
     if (usuario && usuario.id) {
       const usuarioExistente = await Usuario.findByPk(usuario.id);
       if (usuarioExistente) {
@@ -37,7 +35,6 @@ const putTurno = async (req, res) => {
       }
     }
 
-    // 3️⃣ Validar usuario y cancha
     if (usuarioIdFinal) {
       const usuarioExistente = await Usuario.findByPk(usuarioIdFinal);
       if (!usuarioExistente)
@@ -52,12 +49,10 @@ const putTurno = async (req, res) => {
       nuevaCanchaId = canchaIdFinal;
     }
 
-    // 4️⃣ Actualizar horarios
     if (inicio && fin) {
       const horaInicioFmt = inicio.includes(':') ? inicio : `${inicio}:00`;
       const horaFinFmt = fin.includes(':') ? fin : `${fin}:00`;
 
-      // 🔹 Buscar nuevos horarios dentro del rango
       const nuevosHorarios = await Horario.findAll({
         where: {
           [Op.and]: [
@@ -74,18 +69,14 @@ const putTurno = async (req, res) => {
         });
       }
 
-      // 🔹 Liberar los horarios anteriores
       await turno.setHorarios([]);
 
-      // 🔹 Asignar los nuevos
       await turno.setHorarios(nuevosHorarios.map((h) => h.id));
 
-      // Actualizar horas del turno
       turno.hora_inicio = horaInicioFmt;
       turno.hora_fin = horaFinFmt;
     }
 
-    // 5️⃣ Guardar cambios
     await turno.update({
       ...turnoData,
       cancha_id: nuevaCanchaId,
@@ -93,7 +84,6 @@ const putTurno = async (req, res) => {
       hora_fin: turno.hora_fin,
     });
 
-    // 6️⃣ Retornar el turno actualizado
     const turnoActualizado = await Turno.findByPk(id, {
       include: [
         { model: Usuario, attributes: ['nombre', 'apellido', 'telefono'] },

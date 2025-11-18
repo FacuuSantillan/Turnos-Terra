@@ -21,10 +21,19 @@ const FiltroTurnos = () => {
     horarios: state.horarios,
   }));
 
-  const [filtroCancha, setFiltroCancha] = useState('');
-  const [filtroFecha, setFiltroFecha] = useState('');
-  const [filtroHorario, setFiltroHorario] = useState('');
-  const [filtroCliente, setFiltroCliente] = useState('');
+const [filtroCancha, setFiltroCancha] = useState('');
+const [filtroFecha, setFiltroFecha] = useState('');
+const [filtroHorario, setFiltroHorario] = useState('');
+const [filtroCliente, setFiltroCliente] = useState('');
+
+// 🔥 Setear fecha actual por defecto
+useEffect(() => {
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  setFiltroFecha(`${yyyy}-${mm}-${dd}`);
+}, []);
 
   useEffect(() => {
     const filtros = {

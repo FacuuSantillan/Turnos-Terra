@@ -17,7 +17,6 @@ function BarraNavegacion() {
           <img src={Logo} alt="Logo" className={style.imagenLogo} />
         </h1>
 
-        {/* Botón hamburguesa */}
         <button 
           className={style.botonHamburguesa}
           onClick={() => setMenuAbierto(!menuAbierto)}
@@ -25,7 +24,6 @@ function BarraNavegacion() {
           ☰
         </button>
 
-        {/* Menú lateral */}
         <ul className={`${style.menu} ${menuAbierto ? style.menuActivo : ""}`}>
     
           <li><a href="/login" onClick={() => setMenuAbierto(false)}>Login</a></li>

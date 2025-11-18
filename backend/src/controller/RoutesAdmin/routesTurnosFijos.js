@@ -1,4 +1,3 @@
-// Importamos los modelos necesarios
 const { TurnoFijo, TurnoFijoLiberado, Usuario, Cancha, Horario } = require('../../db');
 const { Op } = require('sequelize');
 
@@ -6,7 +5,7 @@ const obtenerTurnosFijos = async (req, res) => {
   try {
     const turnosFijos = await TurnoFijo.findAll({
       include: [
-        { model: Usuario, attributes: ['nombre', 'apellido', 'telefono'] }, // Incluye teléfono
+        { model: Usuario, attributes: ['nombre', 'apellido', 'telefono'] }, 
         { model: Cancha, attributes: ['nombre'] },
         { model: Horario, attributes: ['id', 'hora_inicio', 'hora_fin'], through: { attributes: [] } }
       ],
@@ -46,7 +45,6 @@ const crearLiberacion = async (req, res) => {
   }
 };
 
-// --- (CORREGIDO: Acepta datos de usuario) ---
 const crearTurnoFijo = async (req, res) => {
   try {
     const { nombre, apellido, telefono, cancha_id, dia_semana, horarios_ids } = req.body;
@@ -55,13 +53,11 @@ const crearTurnoFijo = async (req, res) => {
       return res.status(400).json({ error: "Faltan datos obligatorios (nombre, apellido, telefono, cancha_id, dia_semana, horarios_ids)." });
     }
 
-    // Busca o crea al usuario
     const [usuario] = await Usuario.findOrCreate({
       where: { telefono },
       defaults: { nombre, apellido, telefono },
     });
 
-    // Valida los horarios
     const horarios = await Horario.findAll({
       where: {
         id: { [Op.in]: horarios_ids },
@@ -75,7 +71,6 @@ const crearTurnoFijo = async (req, res) => {
       return res.status(400).json({ error: "Uno o más horarios no son válidos, no están activos o no pertenecen a la cancha seleccionada." });
     }
 
-    // Busca conflictos
     const conflicto = await TurnoFijo.findOne({
       where: { cancha_id, dia_semana },
       include: [{
@@ -88,13 +83,11 @@ const crearTurnoFijo = async (req, res) => {
       return res.status(400).json({ error: "Uno o más de estos horarios ya están reservados como turno fijo para este día de la semana." });
     }
 
-    // Calcula horas
     const hora_inicio = horarios[0].hora_inicio;
     const hora_fin = horarios[horarios.length - 1].hora_fin;
 
-    // Crea el TurnoFijo usando el ID de usuario encontrado
     const nuevoTurnoFijo = await TurnoFijo.create({
-      usuario_id: usuario.id, // <-- ID de usuario de findOrCreate
+      usuario_id: usuario.id, 
       cancha_id,
       dia_semana,
       hora_inicio,
@@ -103,7 +96,6 @@ const crearTurnoFijo = async (req, res) => {
 
     await nuevoTurnoFijo.setHorarios(horarios_ids);
 
-    // Devuelve el turno completo (incluyendo el Usuario)
     const turnoFijoCompleto = await TurnoFijo.findByPk(nuevoTurnoFijo.id, {
       include: [
         { model: Usuario, attributes: ['nombre', 'apellido', 'telefono'] },
@@ -120,9 +112,8 @@ const crearTurnoFijo = async (req, res) => {
   }
 };
 
-// --- (CORREGIDO: Acepta datos de usuario) ---
 const modificarTurnoFijo = async (req, res) => {
-  const { id } = req.params; // ID del TurnoFijo a modificar
+  const { id } = req.params; 
   try {
     const { nombre, apellido, telefono, cancha_id, dia_semana, horarios_ids } = req.body;
 
@@ -173,7 +164,7 @@ const modificarTurnoFijo = async (req, res) => {
   	const hora_fin = horarios[horarios.length - 1].hora_fin;
 
     await turnoFijo.update({
-      usuario_id: usuario.id, // <-- ID de usuario de findOrCreate
+      usuario_id: usuario.id, 
       cancha_id,
       dia_semana,
       hora_inicio,
@@ -198,7 +189,6 @@ const modificarTurnoFijo = async (req, res) => {
   }
 };
 
-// --- (NUEVO CONTROLADOR: ELIMINAR TURNO FIJO) ---
 const eliminarTurnoFijo = async (req, res) => {
   const { id } = req.params; 
   try {

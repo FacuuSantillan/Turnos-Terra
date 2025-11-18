@@ -9,7 +9,7 @@ function Formulario() {
 
   const [confirmado, setConfirmado] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [errorModal, setErrorModal] = useState(""); // ⬅ MODAL DE ERROR
+  const [errorModal, setErrorModal] = useState("");
 
   const [cliente, setCliente] = useState({
     nombre: "",
@@ -21,6 +21,30 @@ function Formulario() {
   const horariosDB = useSelector((state) => state.horariosCopy || []);
   const fecha = useSelector((state) => state.selectedDate);
   const turnos = useSelector((state) => state.turnos || []);
+
+  // ✔ VALIDACIÓN GENERAL DEL FORMULARIO
+  const validarFormulario = () => {
+    if (!cliente.nombre.trim() || !cliente.apellido.trim() || !cliente.telefono.trim()) {
+      return "⚠ Todos los campos son obligatorios.";
+    }
+
+    if (!/^\d+$/.test(cliente.telefono)) {
+      return "⚠ El teléfono solo puede contener números.";
+    }
+
+    if (cliente.telefono.length < 6) {
+      return "⚠ El teléfono es demasiado corto.";
+    }
+
+    const horariosC1 = horariosRedux[1]?.length || 0;
+    const horariosC2 = horariosRedux[2]?.length || 0;
+
+    if (horariosC1 === 0 && horariosC2 === 0) {
+      return "⚠ Debes seleccionar al menos un horario.";
+    }
+
+    return null;
+  };
 
   const obtenerHorariosCompletos = (ids = []) => {
     return horariosDB.filter((h) => ids.includes(h.id));
@@ -41,16 +65,27 @@ function Formulario() {
     );
   };
 
-  // Abrir modal de confirmación
+  // ✔ Validación antes de abrir modal
   const handleOpenConfirm = () => {
+    const error = validarFormulario();
+    if (error) {
+      setErrorModal(error);
+      return;
+    }
+
     setShowModal(true);
   };
 
-  // CONFIRMAR dentro del modal
   const handleConfirmar = async () => {
     setShowModal(false);
 
-    // CANCHA 1
+    const error = validarFormulario();
+    if (error) {
+      setErrorModal(error);
+      return;
+    }
+
+    // -------- CANCHA 1 -------- //
     if (horariosRedux[1]?.length > 0) {
       const horariosC1 = obtenerHorariosCompletos(horariosRedux[1]);
       const rango1 = calcularRango(horariosC1);
@@ -60,7 +95,7 @@ function Formulario() {
       );
 
       if (haySuperposicion(rango1.inicio, rango1.fin, turnosCancha1)) {
-        setErrorModal("⚠ Ese rango ya está reservado en Cancha 1.");
+        setErrorModal("⚠ Ese horario ya está reservado en Cancha 1.");
         return;
       }
 
@@ -76,7 +111,7 @@ function Formulario() {
       );
     }
 
-    // CANCHA 2
+    // -------- CANCHA 2 -------- //
     if (horariosRedux[2]?.length > 0) {
       const horariosC2 = obtenerHorariosCompletos(horariosRedux[2]);
       const rango2 = calcularRango(horariosC2);
@@ -86,7 +121,7 @@ function Formulario() {
       );
 
       if (haySuperposicion(rango2.inicio, rango2.fin, turnosCancha2)) {
-        setErrorModal("⚠ Ese rango ya está reservado en Cancha 2.");
+        setErrorModal("⚠ Ese horario ya está reservado en Cancha 2.");
         return;
       }
 
@@ -158,7 +193,7 @@ function Formulario() {
         </button>
       </div>
 
-      {/* ---------------- MODAL CONFIRMACIÓN ---------------- */}
+      {/* ---------- MODAL CONFIRMACIÓN ---------- */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white shadow-xl rounded-xl p-6 w-[90%] max-w-md animate-fadeIn">
@@ -191,7 +226,7 @@ function Formulario() {
         </div>
       )}
 
-      {/* ---------------- MODAL ERROR ---------------- */}
+      {/* ---------- MODAL DE ERROR ---------- */}
       {errorModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-red-600 text-white shadow-xl rounded-xl p-6 w-[90%] max-w-sm animate-fadeIn">
@@ -210,6 +245,7 @@ function Formulario() {
         </div>
       )}
 
+      {/* ---------- CHECK DE CONFIRMACIÓN ---------- */}
       {confirmado && (
         <div className={style.checkOverlay}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" className={style.checkIcon}>
