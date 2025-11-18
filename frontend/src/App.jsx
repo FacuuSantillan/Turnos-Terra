@@ -6,8 +6,8 @@ import Login from "./components/login/login";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 
-// axios.defaults.baseURL = 'https://turnos-terra.onrender.com'
-axios.defaults.baseURL = 'http://localhost:3001'
+axios.defaults.baseURL = 'https://turnos-terra.onrender.com'
+// axios.defaults.baseURL = 'http://localhost:3001'
 
 
 
