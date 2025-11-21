@@ -1,4 +1,4 @@
-// --- CÓDIGO COMPLETO Y FINAL ---
+// --- CÓDIGO COMPLETO Y FINAL CON MODAL DE ELIMINACIÓN + ÉXITO ---
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,31 +21,25 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
-/* -------------------- Helpers -------------------- */
-
+// Convertir hora → minutos
 const timeToMinutes = (time) => {
   if (!time) return 0;
   const [h, m] = time.split(':').map(Number);
   return h * 60 + m;
 };
 
-/* -------------------- COMPONENTE -------------------- */
-
 const TurnoDetalleModal = ({ turno, onClose }) => {
   const dispatch = useDispatch();
 
   const horarios = useSelector((state) => state.horariosCopy);
-  const turnos = useSelector((state) => state.turnos);
-  const turnosFijos = useSelector((state) => state.turnosFijos);
-  const liberados = useSelector((state) => state.turnosFijosLiberados);
 
-  const turnoDetail = useSelector((state) => state.turnoDetail);
-
-  /* --------- Estado local --------- */
   const [editMode, setEditMode] = useState(false);
-
   const [apiError, setApiError] = useState(null);
-  const [successMsg, setSuccessMsg] = useState(false);
+
+  const [successMsg, setSuccessMsg] = useState(false);   // Éxito actualizar
+  const [deleteSuccess, setDeleteSuccess] = useState(false); // Éxito eliminar
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -57,11 +51,9 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
     hora_fin: '',
   });
 
-  /* --------- Carga inicial --------- */
-
+  // Carga inicial
   useEffect(() => {
     if (!turno?.id) return;
-
     dispatch(getTurnoById(turno.id));
     dispatch(getHorarios());
     dispatch(getTurnos());
@@ -69,8 +61,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
     dispatch(getTurnosFijosLiberados());
   }, [dispatch, turno]);
 
-  /* --------- Cargar datos al modal --------- */
-
+  // Setear datos al abrir modal
   useEffect(() => {
     if (!turno) return;
 
@@ -80,29 +71,23 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
       telefono: turno.Usuario?.telefono || '',
       fecha: turno.fecha,
       cancha: turno.cancha_id?.toString(),
-      hora_inicio: turno.hora_inicio?.slice(0, 5),   // <-- FIX
-      hora_fin: turno.hora_fin?.slice(0, 5),         // <-- FIX
+      hora_inicio: turno.hora_inicio?.slice(0, 5),
+      hora_fin: turno.hora_fin?.slice(0, 5),
     });
   }, [turno]);
 
-  /* --------- Filtrar horarios válidos --------- */
-
   const horariosFiltrados = useMemo(() => {
     if (!formData.cancha || !formData.fecha) return [];
-
     const canchaId = Number(formData.cancha);
-
     return horarios
       ?.filter((h) => h.cancha_id === canchaId)
       .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
   }, [horarios, formData]);
 
-  /* --------- Cambios --------- */
-
+  // Cambios inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setApiError(null);
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -112,8 +97,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
     }));
   };
 
-  /* --------- Guardar cambios --------- */
-
+  // Guardar turno
   const handleSave = async (e) => {
     e.preventDefault();
     setApiError(null);
@@ -155,22 +139,25 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
     }, 1500);
   };
 
-  /* --------- Eliminar turno --------- */
-
-  const handleDelete = async () => {
-    if (!window.confirm('¿Eliminar turno?')) return;
+  // CONFIRMAR DELETE
+  const confirmDelete = async () => {
     await dispatch(deleteTurno(turno.id));
-    onClose();
-  };
+    setShowDeleteModal(false);
 
-  /* --------- Render --------- */
+    setDeleteSuccess(true);
+
+    setTimeout(() => {
+      setDeleteSuccess(false);
+      onClose();
+    }, 1200);
+  };
 
   if (!turno) return null;
 
   return (
     <>
+      {/* MODAL PRINCIPAL */}
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
-
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
 
           {/* Cerrar */}
@@ -185,7 +172,6 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
             {editMode ? 'Editar Turno' : 'Detalle del Turno'}
           </h2>
 
-          {/* Error */}
           {apiError && (
             <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg mb-4 text-red-700 flex gap-2">
               <ExclamationTriangleIcon className="h-5 w-5" />
@@ -195,7 +181,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
 
           <form onSubmit={handleSave} className="space-y-5">
 
-            {/* Datos del cliente */}
+            {/* Datos usuario */}
             {['nombre', 'apellido', 'telefono'].map((c) => (
               <div key={c}>
                 <label className="block text-sm font-medium">{c.toUpperCase()}</label>
@@ -208,7 +194,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
               </div>
             ))}
 
-            {/* Fecha - cancha */}
+            {/* Fecha / cancha */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block mb-1 text-sm font-medium">Fecha</label>
@@ -245,8 +231,6 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
             {/* Horarios */}
             {editMode ? (
               <div className="grid grid-cols-2 gap-4">
-
-                {/* inicio */}
                 <div>
                   <label className="block mb-2 text-sm font-semibold">Hora inicio</label>
                   <select
@@ -263,14 +247,13 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
                   >
                     <option value="">Seleccionar</option>
                     {horariosFiltrados.map((h) => (
-                      <option key={h.id} value={h.hora_inicio.slice(0,5)}>
+                      <option key={h.id} value={h.hora_inicio.slice(0, 5)}>
                         {h.hora_inicio.slice(0, 5)}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* fin */}
                 <div>
                   <label className="block mb-2 text-sm font-semibold">Hora fin</label>
                   <select
@@ -278,21 +261,17 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
                     value={formData.hora_fin}
                     disabled={!formData.hora_inicio}
                     onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        hora_fin: e.target.value,
-                      }))
+                      setFormData((prev) => ({ ...prev, hora_fin: e.target.value }))
                     }
                     className="w-full px-4 py-2.5 border rounded-xl"
                   >
                     <option value="">Seleccionar</option>
-
                     {(() => {
                       const inicioMin = timeToMinutes(formData.hora_inicio);
                       return horariosFiltrados
                         .filter((h) => timeToMinutes(h.hora_fin) > inicioMin)
                         .map((h) => (
-                          <option key={h.id} value={h.hora_fin.slice(0,5)}>
+                          <option key={h.id} value={h.hora_fin.slice(0, 5)}>
                             {h.hora_fin.slice(0, 5)}
                           </option>
                         ));
@@ -325,7 +304,6 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
 
             {/* Botones */}
             <div className="flex justify-end gap-3 pt-6 border-t mt-4">
-
               {!editMode ? (
                 <>
                   <button
@@ -339,7 +317,7 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
 
                   <button
                     type="button"
-                    onClick={handleDelete}
+                    onClick={() => setShowDeleteModal(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                   >
                     <TrashIcon className="h-5 w-5" />
@@ -369,12 +347,55 @@ const TurnoDetalleModal = ({ turno, onClose }) => {
         </div>
       </div>
 
-      {/* Éxito */}
+      {/* MODAL ÉXITO EDITAR */}
       {successMsg && (
         <div className="fixed inset-0 flex justify-center items-center z-[9999]">
           <div className="bg-green-600 text-white px-8 py-4 rounded-2xl shadow-xl flex items-center gap-3 text-lg font-semibold animate-bounceIn">
             <CheckCircleIcon className="h-6 w-6" />
             Turno actualizado con éxito
+          </div>
+        </div>
+      )}
+
+      {/* MODAL ÉXITO ELIMINAR */}
+      {deleteSuccess && (
+        <div className="fixed inset-0 flex justify-center items-center z-[9999]">
+          <div className="bg-red-600 text-white px-8 py-4 rounded-2xl shadow-xl flex items-center gap-3 text-lg font-semibold animate-bounceIn">
+            <TrashIcon className="h-6 w-6" />
+            Turno eliminado
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMACIÓN ELIMINAR */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999]">
+          <div className="bg-white rounded-xl p-6 w-[90%] max-w-sm shadow-xl">
+
+            <h3 className="text-xl font-semibold text-red-600 mb-4 flex items-center gap-2">
+              <ExclamationTriangleIcon className="h-6 w-6" />
+              Confirmar eliminación
+            </h3>
+
+            <p className="text-gray-700 mb-6">
+              ¿Seguro que deseas eliminar este turno?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Sí, eliminar
+              </button>
+            </div>
           </div>
         </div>
       )}

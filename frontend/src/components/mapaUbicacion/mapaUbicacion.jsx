@@ -3,7 +3,7 @@ import style from "./mapaUbicacion.module.css";
 
 function MapaUbicacion() {
   return (
-    <section className={style.mapaSection}>
+    <section id="ubicacion" className={style.mapaSection}>
       <div className={style.textContainer}>
         <h2 className={style.title}>📍Nuestra Ubicación</h2>
         <p className={style.description}>

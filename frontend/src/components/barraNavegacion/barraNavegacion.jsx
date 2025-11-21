@@ -8,7 +8,7 @@ function BarraNavegacion() {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   return (
-    <nav className={style.navbar}>
+    <nav id="inicio" className={style.navbar}>
       <div className={style.overlay}></div>
       <img src={fondoNavBar} alt="Fondo NavBar" className={style.fondo} />
 
@@ -25,12 +25,55 @@ function BarraNavegacion() {
         </button>
 
         <ul className={`${style.menu} ${menuAbierto ? style.menuActivo : ""}`}>
+
+          <li>
+  <a
+    href="/login"
+    onClick={() => setMenuAbierto(false)}
+  >
+    Login
+  </a>
+</li>
     
-          <li><a href="/login" onClick={() => setMenuAbierto(false)}>Login</a></li>
-          <li><a href="#DiasyHorarios" onClick={() => setMenuAbierto(false)}>Dias y Horarios</a></li>
-          <li><a href="#servicios" onClick={() => setMenuAbierto(false)}>Datos del turno</a></li>
-          <li><a href="#proyectos" onClick={() => setMenuAbierto(false)}>Ubicación</a></li>
-          <li><a href="#contacto" onClick={() => setMenuAbierto(false)}>Contacto</a></li>
+          <li>
+  <a
+    href="#inicio"
+    onClick={(e) => {
+      e.preventDefault();
+      document.getElementById("inicio")?.scrollIntoView({ behavior: "smooth" });
+      setMenuAbierto(false);
+    }}
+  >
+    Días y Horarios
+  </a>
+</li>
+
+<li>
+  <a
+    href="#formulario"
+    onClick={(e) => {
+      e.preventDefault();
+      document.getElementById("formulario")?.scrollIntoView({ behavior: "smooth" });
+      setMenuAbierto(false);
+    }}
+  >
+    Datos del turno
+  </a>
+</li>
+
+<li>
+  <a
+    href="#ubicacion"
+    onClick={(e) => {
+      e.preventDefault();
+      document.getElementById("ubicacion")?.scrollIntoView({ behavior: "smooth" });
+      setMenuAbierto(false);
+    }}
+  >
+    Ubicación
+  </a>
+</li>
+
         </ul>
       </div>
     </nav>

@@ -9,6 +9,7 @@ function Formulario() {
 
   const [confirmado, setConfirmado] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  
   const [errorModal, setErrorModal] = useState("");
 
   const [cliente, setCliente] = useState({
@@ -22,7 +23,11 @@ function Formulario() {
   const fecha = useSelector((state) => state.selectedDate);
   const turnos = useSelector((state) => state.turnos || []);
 
-  // ✔ VALIDACIÓN GENERAL DEL FORMULARIO
+  const aMin = (hora) => {
+    const [h, m, s] = hora.split(":").map(Number);
+    return h * 60 + m;
+  };
+
   const validarFormulario = () => {
     if (!cliente.nombre.trim() || !cliente.apellido.trim() || !cliente.telefono.trim()) {
       return "⚠ Todos los campos son obligatorios.";
@@ -60,12 +65,19 @@ function Formulario() {
   };
 
   const haySuperposicion = (inicio, fin, turnosExistentes) => {
-    return turnosExistentes.some(
-      (t) => inicio < t.hora_fin && t.hora_inicio < fin
-    );
+    const inicioMin = aMin(inicio);
+    const finMin = aMin(fin);
+
+    return turnosExistentes.some((t) => {
+      const tInicio = aMin(t.hora_inicio);
+      const tFin = aMin(t.hora_fin);
+
+      if (finMin === tInicio || inicioMin === tFin) return false;
+
+      return inicioMin < tFin && tInicio < finMin;
+    });
   };
 
-  // ✔ Validación antes de abrir modal
   const handleOpenConfirm = () => {
     const error = validarFormulario();
     if (error) {
@@ -85,6 +97,8 @@ function Formulario() {
       return;
     }
 
+    let huboError = false;
+
     // -------- CANCHA 1 -------- //
     if (horariosRedux[1]?.length > 0) {
       const horariosC1 = obtenerHorariosCompletos(horariosRedux[1]);
@@ -96,6 +110,7 @@ function Formulario() {
 
       if (haySuperposicion(rango1.inicio, rango1.fin, turnosCancha1)) {
         setErrorModal("⚠ Ese horario ya está reservado en Cancha 1.");
+        huboError = true;
         return;
       }
 
@@ -122,6 +137,7 @@ function Formulario() {
 
       if (haySuperposicion(rango2.inicio, rango2.fin, turnosCancha2)) {
         setErrorModal("⚠ Ese horario ya está reservado en Cancha 2.");
+        huboError = true;
         return;
       }
 
@@ -137,7 +153,17 @@ function Formulario() {
       );
     }
 
+    if (huboError) return;
+
     setConfirmado(true);
+
+    setTimeout(() => {
+      const ubicacionSection = document.getElementById("ubicacion");
+      if (ubicacionSection) {
+        ubicacionSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 300);
+
     setTimeout(() => setConfirmado(false), 2000);
   };
 

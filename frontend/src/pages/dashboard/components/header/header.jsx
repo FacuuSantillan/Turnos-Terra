@@ -18,7 +18,7 @@ const Header = () => {
       
       <div className="flex flex-col flex-1">
         <h1 className="text-2xl font-bold tracking-tight">
-          Terra Padel Club
+          Padel Club
         </h1>
        
       </div>
