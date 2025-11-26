@@ -18,49 +18,24 @@ function Footer() {
       </div>
 
       <nav className={style.nav}>
-        <a
-          href="#inicio"
-          className={style.link}
-          onClick={(e) => {
-            e.preventDefault();
-            scrollTo("inicio");
-          }}
-        >
-          Inicio
-        </a>
-
-        <a
-          href="#formulario"
-          className={style.link}
-          onClick={(e) => {
-            e.preventDefault();
-            scrollTo("formulario");
-          }}
-        >
-          Datos del turno
-        </a>
-
-        <a
-          href="#ubicacion"
-          className={style.link}
-          onClick={(e) => {
-            e.preventDefault();
-            scrollTo("ubicacion");
-          }}
-        >
-          Ubicación
-        </a>
-
-        <a
-          href="#contacto"
-          className={style.link}
-          onClick={(e) => {
-            e.preventDefault();
-            scrollTo("contacto");
-          }}
-        >
-          Contacto
-        </a>
+        {[
+          { id: "inicio", label: "Inicio" },
+          { id: "formulario", label: "Datos del turno" },
+          { id: "ubicacion", label: "Ubicación" },
+          { id: "contacto", label: "Contacto" }
+        ].map((item) => (
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            className={style.link}
+            onClick={(e) => {
+              e.preventDefault();
+              scrollTo(item.id);
+            }}
+          >
+            {item.label}
+          </a>
+        ))}
       </nav>
 
       <p className={style.text}>

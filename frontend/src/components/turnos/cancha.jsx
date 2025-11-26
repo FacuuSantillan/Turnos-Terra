@@ -1,4 +1,3 @@
-// Cancha.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,7 +5,6 @@ import {
   getTurnos,
   getTurnosFijos,
   getTurnosFijosLiberados,
-  setSelectedDate,
   setHorariosSeleccionados,
 } from "../../redux/actions";
 
@@ -17,6 +15,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
 // ---------- Funciones auxiliares ----------
+
+// Formatea fecha a YYYY-MM-DD local
 const formatDateISO = (date) => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -24,75 +24,82 @@ const formatDateISO = (date) => {
   return `${y}-${m}-${d}`;
 };
 
-const obtenerDiaSemana = (fecha) => {
-  const day = new Date(`${fecha}T00:00:00`).getUTCDay();
-  return day === 0 ? 7 : day; // Domingo = 7
+// FIX: Función segura para obtener día de la semana (1-7)
+// Evita errores de zona horaria construyendo la fecha localmente
+const obtenerDiaSemana = (fechaISO) => {
+  if (!fechaISO) return null;
+  const [year, month, day] = fechaISO.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  const dia = date.getDay(); // 0 (Domingo) - 6 (Sábado)
+  return dia === 0 ? 7 : dia;
 };
 
-// ---------- Componente principal ----------
+// ---------- Componente Principal ----------
 function Cancha({ titulo }) {
   const dispatch = useDispatch();
 
+  // Selectores de Redux
   const horarios = useSelector((state) => state.horariosCopy || []);
   const turnos = useSelector((state) => state.turnos || []);
   const turnosFijos = useSelector((state) => state.turnosFijos || []);
   const liberados = useSelector((state) => state.turnosFijosLiberados || []);
 
-  // AHORA LA FECHA VIENE DE REDUX
-  const selectedDate = useSelector((state) => state.selectedDate);
+  // --- ESTADO LOCAL DE FECHA ---
+  // Fundamental: Manejamos la fecha aquí para que sea independiente por cancha
+  const [selectedDate, setSelectedDate] = useState(formatDateISO(new Date()));
 
-  // HORAS que selecciona el usuario
+  // Estados de carga y selección
+  const [isLoading, setIsLoading] = useState(true);
   const [horasSeleccionadas, setHorasSeleccionadas] = useState([]);
 
-  // Identificar cancha
+  // Identificar ID de cancha
   const canchaId = useMemo(() => {
     if (titulo.includes("1")) return 1;
     if (titulo.includes("2")) return 2;
     return null;
   }, [titulo]);
 
-  // Cargar datos iniciales
+  // 1. Carga Inicial y Reset
   useEffect(() => {
+    setIsLoading(true);
+    setSelectedDate(formatDateISO(new Date())); // Resetear a HOY al cambiar cancha
+    setHorasSeleccionadas([]);
+
     dispatch(getHorarios());
     dispatch(getTurnos());
     dispatch(getTurnosFijos());
     dispatch(getTurnosFijosLiberados());
 
-    // Si Redux no tiene fecha aún, setear HOY
-    if (!selectedDate) {
-      dispatch(setSelectedDate(formatDateISO(new Date())));
-    }
-  }, [dispatch]);
+    const timer = setTimeout(() => setIsLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, [dispatch, canchaId]);
 
-  // Generar los próximos 7 días
+  // 2. Generar Días del Calendario (14 días)
   const dias = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
+    return Array.from({ length: 14 }, (_, i) => {
       const fecha = new Date();
       fecha.setDate(fecha.getDate() + i);
 
       return {
-        nombre: fecha
-          .toLocaleDateString("es-ES", { weekday: "short" })
-          .toUpperCase(),
+        nombre: fecha.toLocaleDateString("es-ES", { weekday: "short" }).toUpperCase(),
         numero: fecha.getDate(),
-        mes: fecha
-          .toLocaleDateString("es-ES", { month: "short" })
-          .toUpperCase(),
+        mes: fecha.toLocaleDateString("es-ES", { month: "short" }).toUpperCase(),
         fechaCompleta: formatDateISO(fecha),
       };
     });
   }, []);
 
-  // Lógica principal de horarios disponibles
+  // 3. Filtrar Horarios Disponibles
   const horariosDisponibles = useMemo(() => {
     if (!Array.isArray(horarios) || !canchaId || !selectedDate) return [];
+    if (isLoading) return [];
 
     const diaSemanaNum = obtenerDiaSemana(selectedDate);
 
     const esDisponible = (horario) => {
       if (!horario.activo) return false;
 
-      // Turnos ya reservados
+      // A) Turnos Puntuales (Ya reservados)
       const reservado = turnos.some(
         (t) =>
           t.fecha.startsWith(selectedDate) &&
@@ -101,7 +108,7 @@ function Cancha({ titulo }) {
       );
       if (reservado) return false;
 
-      // Turno fijo
+      // B) Turnos Fijos
       const turnoFijo = turnosFijos.find(
         (tf) =>
           tf.cancha_id === canchaId &&
@@ -109,12 +116,12 @@ function Cancha({ titulo }) {
           tf.Horarios?.some((h) => h.id === horario.id)
       );
 
+      // C) Si es Fijo, verificar si está liberado
       if (turnoFijo) {
         const estaLiberado = liberados.some(
-          (l) =>
-            l.turno_fijo_id === turnoFijo.id && l.fecha === selectedDate
+          (l) => l.turno_fijo_id === turnoFijo.id && l.fecha === selectedDate
         );
-        return estaLiberado;
+        return estaLiberado; // true = disponible
       }
 
       return true;
@@ -127,18 +134,25 @@ function Cancha({ titulo }) {
         hora: h.hora_inicio,
       }))
       .sort((a, b) => a.hora.localeCompare(b.hora));
-  }, [horarios, turnos, turnosFijos, liberados, canchaId, selectedDate]);
+  }, [horarios, turnos, turnosFijos, liberados, canchaId, selectedDate, isLoading]);
 
-  // seleccionar/deseleccionar horarios
+  // Handler: Seleccionar hora
   const toggleHora = (id) => {
     setHorasSeleccionadas((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
+  // Handler: Cambiar fecha
+  const handleDateChange = (nuevaFecha) => {
+    if (selectedDate !== nuevaFecha) {
+      setSelectedDate(nuevaFecha);
+      setHorasSeleccionadas([]); // Limpiar selección al cambiar día
+    }
+  };
+
   return (
     <div href="#DiasyHorarios" className={style.canchaContainer}>
-
       {/* Título */}
       <div className={style.tituloCancha}>
         <box-icon name="chevron-left" size="md"></box-icon>
@@ -148,7 +162,7 @@ function Cancha({ titulo }) {
 
       <img src={iconoCancha} alt="Cancha" className={style.iconoCancha} />
 
-      {/* Calendario */}
+      {/* Calendario Swiper */}
       <div className={style.calendarioContainer}>
         <Swiper slidesPerView={5} spaceBetween={10}>
           {dias.map((d, i) => (
@@ -157,14 +171,9 @@ function Cancha({ titulo }) {
                 className={`${style.diaBoton} ${
                   selectedDate === d.fechaCompleta ? style.diaSeleccionado : ""
                 }`}
-                onClick={() => {
-                  dispatch(setSelectedDate(d.fechaCompleta));
-                  setHorasSeleccionadas([]);
-                }}
+                onClick={() => handleDateChange(d.fechaCompleta)}
               >
-                <span className={style.textoDia}>
-                  {i === 0 ? "HOY" : d.nombre}
-                </span>
+                <span className={style.textoDia}>{i === 0 ? "HOY" : d.nombre}</span>
                 <span className={style.textoNumero}>{d.numero}</span>
                 <span className={style.textoMes}>{d.mes}</span>
               </button>
@@ -173,16 +182,18 @@ function Cancha({ titulo }) {
         </Swiper>
       </div>
 
-      {/* Horarios */}
+      {/* Grilla de Horarios */}
       <div className={style.horarios}>
-        {horariosDisponibles.length > 0 ? (
+        {isLoading ? (
+          Array.from({ length: 12 }).map((_, index) => (
+            <div key={index} className={style.skeletonBtn}></div>
+          ))
+        ) : horariosDisponibles.length > 0 ? (
           horariosDisponibles.map((h) => (
             <button
               key={h.id}
               className={`${style.horaBoton} ${
-                horasSeleccionadas.includes(h.id)
-                  ? style.horaSeleccionada
-                  : ""
+                horasSeleccionadas.includes(h.id) ? style.horaSeleccionada : ""
               }`}
               onClick={() => toggleHora(h.id)}
             >
@@ -190,7 +201,7 @@ function Cancha({ titulo }) {
             </button>
           ))
         ) : (
-          <p>No hay horarios disponibles</p>
+          <p className={style.noHorarios}>No hay horarios disponibles</p>
         )}
       </div>
 
@@ -198,24 +209,23 @@ function Cancha({ titulo }) {
         *Seleccione la cantidad de horas. Si selecciona solo 15:00, el turno será de 15:00 a 16:00 hs.
       </b>
 
-      {/* Confirmar */}
-      {horasSeleccionadas.length > 0 && (
+      {/* Botón Confirmar */}
+      {!isLoading && horasSeleccionadas.length > 0 && (
         <button
           className={style.confirmarBtn}
           onClick={() => {
-            dispatch(setHorariosSeleccionados(canchaId, horasSeleccionadas));
-
+            // IMPORTANTE: Se envía la fecha seleccionada LOCALMENTE al Redux
+            dispatch(setHorariosSeleccionados(canchaId, horasSeleccionadas, selectedDate));
+            
             const formSection = document.getElementById("formulario");
             if (formSection)
               formSection.scrollIntoView({ behavior: "smooth" });
           }}
         >
-          CONFIRMAR HORARIO (
-          {horariosDisponibles
+          CONFIRMAR HORARIO ({horariosDisponibles
             .filter((h) => horasSeleccionadas.includes(h.id))
             .map((h) => h.hora)
-            .join(", ")}
-          )
+            .join(", ")})
         </button>
       )}
     </div>

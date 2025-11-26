@@ -15,26 +15,34 @@ const FiltroTurnos = () => {
 
   const { turnos, turnosCopy, turnosFijos, turnosFijosCopy, horarios } = useSelector((state) => ({
     turnos: state.turnos,
-    turnosCopy: state.turnosCopy,
+    turnosCopy: state.turnosCopy || [], // Aseguramos array para evitar errores
     turnosFijos: state.turnosFijos,
     turnosFijosCopy: state.turnosFijosCopy,
     horarios: state.horarios,
   }));
 
-const [filtroCancha, setFiltroCancha] = useState('');
-const [filtroFecha, setFiltroFecha] = useState('');
-const [filtroHorario, setFiltroHorario] = useState('');
-const [filtroCliente, setFiltroCliente] = useState('');
+  // --- FUNCIÓN HELPER PARA FECHA HOY ---
+  // La definimos fuera o dentro, pero la usamos para el Estado Inicial
+  const getFechaHoy = () => {
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
 
-// 🔥 Setear fecha actual por defecto
-useEffect(() => {
-  const hoy = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-  const dd = String(hoy.getDate()).padStart(2, '0');
-  setFiltroFecha(`${yyyy}-${mm}-${dd}`);
-}, []);
+  const [filtroCancha, setFiltroCancha] = useState('');
+  
+  // 🔥 CAMBIO CLAVE: Inicializamos DIRECTAMENTE con la fecha de hoy.
+  // Esto hace que el primer render ya tenga la fecha puesta.
+  const [filtroFecha, setFiltroFecha] = useState(getFechaHoy());
+  
+  const [filtroHorario, setFiltroHorario] = useState('');
+  const [filtroCliente, setFiltroCliente] = useState('');
 
+  // (Se eliminó el useEffect que seteaba la fecha al montar, ya no es necesario)
+
+  // Efecto de Filtrado
   useEffect(() => {
     const filtros = {
       cancha: filtroCancha,
@@ -43,11 +51,21 @@ useEffect(() => {
       cliente: filtroCliente,
     };
     dispatch(filterTurnos(filtros));
-  }, [filtroCancha, filtroFecha, filtroHorario, filtroCliente, dispatch]);
+  }, [
+    filtroCancha, 
+    filtroFecha, 
+    filtroHorario, 
+    filtroCliente, 
+    dispatch, 
+    turnosCopy // 🔥 IMPORTANTE: Si los datos llegan tarde del backend, esto re-aplica el filtro
+  ]);
 
   const handleLimpiarFiltros = () => {
     setFiltroCancha('');
-    setFiltroFecha('');
+    // Opcional: ¿Al limpiar quieres volver a "hoy" o a "todo"?
+    // Si quieres borrar todo: setFiltroFecha('');
+    // Si quieres resetear a hoy: setFiltroFecha(getFechaHoy());
+    setFiltroFecha(''); 
     setFiltroHorario('');
     setFiltroCliente('');
   };

@@ -1,15 +1,16 @@
-
+/* ---- CONTENEDOR PRINCIPAL ---- */
 .containerFormulario {
   position: relative;
-  top: 30vh;
-  width: 102.01%;
+  top: 25vh;
+  width: 102%;
   height: 100vh;
-  overflow: hidden;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  overflow: hidden;
 }
 
+/* Fondo blur con efecto “cinemático” */
 .fondoFormulario {
   position: absolute;
   top: 0;
@@ -17,234 +18,189 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-   filter: blur(6px); 
-  transform: scale(1.05);
+  filter: blur(10px) brightness(0.65);
+  transform: scale(1.1);
   z-index: -1;
 }
 
+/* ---- CARD PRINCIPAL (GLASSMORPHISM) ---- */
 .card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(0px);
-  padding: 30px 40px;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.219);
-  max-width: 400px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  padding: 35px 45px;
+  border-radius: 28px;
   width: 90%;
+  position: relative;
+  top: 16vh;
+  max-width: 420px;
+  margin-top: -40px;
+  color: #f8f8f8;
   text-align: center;
-  color: #333;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  animation: fadeUp 0.7s ease;
 }
+
+/* Animación de entrada */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(25px) }
+  to { opacity: 1; transform: translateY(0) }
+}
+
+.tituloPrincipal {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 25px;
+  letter-spacing: 0.5px;
+}
+
+/* ---- FORMULARIO ---- */
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.inputGroup {
+  text-align: left;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ececec;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 10px 14px;
+  font-size: 15px;
+  background: rgba(255,255,255,0.25);
+  color: white;
+  backdrop-filter: blur(4px);
+  transition: 0.25s ease;
+}
+
+.input:focus {
+  background: rgba(255,255,255,0.35);
+  border-color: #7dffaa;
+  box-shadow: 0 0 12px rgba(0, 255, 120, 0.4);
+  outline: none;
+}
+
+/* ---- RESUMEN DE HORARIOS ---- */
+.horarios {
+  margin-top: 25px;
+  text-align: left;
+  color: #f0f0f0;
+  font-size: 15px;
+  background: transparent;
+  padding: 15px;
+  border-radius: 15px;
+}
+
+.subtitulo {
+  font-size: 17px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* ---- BOTÓN CONFIRMAR ---- */
+.botonConfirmar {
+  margin-top: 25px;
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #00c06f, #00a95a);
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: 0.25s ease;
+  box-shadow: 0 5px 20px rgba(0,255,140,0.35);
+}
+
+.botonConfirmar:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #00d277, #00b863);
+  box-shadow: 0 8px 22px rgba(0,255,140,0.45);
+}
+
+.botonConfirmar:active {
+  transform: scale(0.97);
+}
+
+/* ---- CHECK ANIMADO ---- */
 .checkOverlay {
-  position: fixed;        /* flotante sobre todo */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* oscurece fondo */
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;          /* siempre arriba */
+  z-index: 9999;
 }
 
 .checkIcon {
-  width: 100px;
-  height: 100px;
-  stroke: #4caf50;
+  width: 110px;
+  height: 110px;
+  stroke: #5cff9a;
   stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
-  background: white;
+  background: #ffffff;
   border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  box-shadow: 0 0 25px rgba(0,255,150,0.4);
 }
 
 .checkCircle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
-  animation: circleAnim 0.6s ease-in-out forwards;
+  animation: circleAnim 0.6s ease-out forwards;
 }
 
 .checkMark {
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  animation: checkAnim 0.3s ease-in-out 0.6s forwards;
+  animation: checkAnim 0.3s ease-out 0.6s forwards;
 }
 
 @keyframes circleAnim {
-  to {
-    stroke-dashoffset: 0;
-  }
+  to { stroke-dashoffset: 0 }
 }
 
 @keyframes checkAnim {
-  to {
-    stroke-dashoffset: 0;
-  }
+  to { stroke-dashoffset: 0 }
 }
 
-
-.tituloPrincipal {
-  font-size: 22px;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.formulario {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.label {
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.input {
-  width: 100%;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  padding: 8px 12px;
-  font-size: 14px;
-  transition: 0.3s;
-}
-
-.input:focus {
-  border-color: #4CAF50;
-  box-shadow: 0 0 8px rgba(76,175,80,0.3);
-  outline: none;
-}
-
-.horarios {
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-.subtitulo {
-  font-size: 16px;
-  margin-bottom: 8px;
-  font-weight: bold;
-}
-
-.botonConfirmar {
-  margin-top: 20px;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.botonConfirmar:hover {
-  background: linear-gradient(135deg, #45a049, #3e8e41);
-}
-
+/* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
-  .containerFormulario {
-    position: relative;
-    width: 102%;
-    min-height: 90vh;
-  }
-
-  .fondoFormulario {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(6px); 
-    transform: scale(1.05);
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
+  .card {
+    padding: 28px;
+    margin-top: -20px;
   }
 
   .tituloPrincipal {
-    text-align: center;
-    color: rgb(95, 95, 95);
     font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 20px;
   }
 
-  .formulario {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .inputGroup {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .label {
-    color: rgb(95, 95, 95);
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-
-  .form {
-    width: 100%;
-    height: 40px;
-    border-radius: 10px;
-    border: none;
-    padding: 8px 12px;
-    text-align: left;
-  }
-
-  .horarios {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 350px;
-    color: rgb(95, 95, 95);
-    text-align: left;
-  }
-
-  .subtitulo {
-    font-size: 18px;
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-
-  .canchaBox1,
-  .canchaBox2 {
-    width: 100%;
-    margin-top: 10px;
+  .input {
+    height: 42px;
   }
 
   .botonConfirmar {
-    margin-top: 25px;
-    width: 100%;
-    max-width: 350px;
-    padding: 12px;
-    background: #5cb85c;
-    color: white;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
-    border: none;
     font-size: 16px;
-  }
-  .card{
-    position:relative;
-    top: -5vh;
   }
 }

@@ -28,9 +28,7 @@ export const FILTER_TURNOS = 'FILTER_TURNOS';
 
 export const getHorarios = () => {
   return async (dispatch) => {
-    
     const response = await axios.get(`/`); 
-    
     return dispatch({
         type: GET_HORARIOS, 
         payload: response.data
@@ -48,7 +46,6 @@ export const setSelectedDate = (fecha) => {
 export const getTurnos = () => {
   return async (dispatch) => {
     const response = await axios.get(`/getTurnos`); 
-    
     return dispatch({
         type: GET_TURNOS, 
         payload: response.data
@@ -57,8 +54,6 @@ export const getTurnos = () => {
 };
 
 // --- AÑADIDO ---
-// Action creator para los filtros.
-// Recibe un objeto "filtros" (ej. { cancha: '1', fecha: '2025-10-10' })
 export const filterTurnos = (filtros) => {
   return {
     type: FILTER_TURNOS,
@@ -248,10 +243,18 @@ export const deleteTurnoFijo = (id) => {
   };
 };
 
-export const setHorariosSeleccionados = (canchaId, horas) => ({
-  type: SET_HORARIOS_SELECCIONADOS,
-  payload: { canchaId, horas }
-});
+// --- CORREGIDO AQUÍ ---
+// Aseguramos que recibimos la fecha y usamos la clave 'horarios' en el payload
+export const setHorariosSeleccionados = (canchaId, horarios, fecha) => {
+  return {
+    type: SET_HORARIOS_SELECCIONADOS,
+    payload: { 
+        canchaId, 
+        horarios, // Usamos 'horarios' para consistencia con el Reducer
+        fecha     // Incluimos la fecha
+    }
+  };
+};
 
 export const getTurnoById = (id) => {
   return async (dispatch) => {

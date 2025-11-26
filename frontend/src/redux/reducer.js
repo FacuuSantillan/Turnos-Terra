@@ -53,13 +53,16 @@ const initialState = {
 function reducer(state = initialState, action) {
   switch (action.type) {
 
-    case SET_HORARIOS_SELECCIONADOS:
+   case SET_HORARIOS_SELECCIONADOS:
       return {
         ...state,
         horariosSeleccionados: {
           ...state.horariosSeleccionados,
-          [action.payload.canchaId]: action.payload.horas
-        }
+          [action.payload.canchaId]: {
+            ids: action.payload.horarios, // Array de IDs de horas
+            fecha: action.payload.fecha,  // Fecha específica (YYYY-MM-DD)
+          },
+        },
       };
 
     case SET_SELECTED_DATE:
